@@ -17,6 +17,8 @@ public class Fawkes extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(events, this);
 
+        // We name them ivy.x to differentiate them from the built-in or
+        // scripted events.
         BetonQuest.getInstance().registerEvents("ivy.testevent", TestEvent.class);
         BetonQuest.getInstance().registerEvents("ivy.questcomplete", QuestComplete.class);
     }

@@ -2,26 +2,13 @@
 
 package io.ivy.fawkes;
 
-import java.util.HashMap;
-
-import org.bukkit.Material;
-
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.weather.WeatherChangeEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
-
-import org.bukkit.entity.Player;
-import org.bukkit.entity.HumanEntity;
-
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.event.entity.*;
 
 public class Events implements Listener {
 
@@ -29,5 +16,31 @@ public class Events implements Listener {
 
     public Events(Fawkes instance) {
         fawkes = instance;
+    }
+    
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+    	if (event.getDamager().getType().equals(EntityType.PLAYER)) {
+    		
+    	}
+    }
+    
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+    }
+    
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+    }
+    
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+    	if (event.getEntityType().equals(EntityType.PLAYER)) {
+    		if (event.getFoodLevel() < 10) {
+    			Bukkit.getLogger().info("Adjusted food level.");
+    			Player player = (Player) event.getEntity();
+    			player.setFoodLevel(event.getFoodLevel() + 1);
+    		}
+    	}
     }
 }
