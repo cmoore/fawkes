@@ -5,7 +5,13 @@
   <version>0.0.1</version>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>  
+  </properties>
+  <repositories>
+    <repository>
+      <id>ivy.io</id>
+      <url>http://localhost/~cmoore/repository/</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>redis.clients</groupId>
@@ -18,11 +24,6 @@
 		  <groupId>org.bukkit</groupId>
 		  <artifactId>bukkit</artifactId>
 		  <version>1.8-R0.1-SNAPSHOT</version>
-	  </dependency>
-	  <dependency>
-		  <groupId>com.earth2me</groupId>
-		  <artifactId>essentials</artifactId>
-		  <version>0.0.1</version>
 	  </dependency>
   </dependencies>
   <build>
@@ -47,8 +48,13 @@
            <goal>shade</goal>
          </goals>
          <configuration>
-           <finalName>tracker-shade</finalName>
-           <outputFile>../../vigo/plugins/${project.artifactId}.jar</outputFile>
+           <artifactSet>
+             <excludes>
+               <exclude>org.bukkit</exclude>
+             </excludes>
+           </artifactSet>
+           <finalName>shade</finalName>
+           <outputFile>/home/cmoore/mc/servers/fawkes/plugins/${project.artifactId}-${project.version}.jar</outputFile>
            <shadedArtifactAttached>false</shadedArtifactAttached>
            <shadedClassifierName>shaded</shadedClassifierName>
          </configuration>

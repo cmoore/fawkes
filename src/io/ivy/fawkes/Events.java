@@ -23,10 +23,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.earth2me.essentials.api.*;
-
-
-
 public class Events implements Listener {
 
     private int emerald_buy_rate = 5;
