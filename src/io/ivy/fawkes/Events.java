@@ -25,10 +25,6 @@ import org.bukkit.inventory.ItemStack;
 
 public class Events implements Listener {
 
-    private int emerald_buy_rate = 5;
-    private int emerald_sell_rate = 5;
-
-    
     private final Fawkes fawkes;
 
     public Events(Fawkes instance) {
