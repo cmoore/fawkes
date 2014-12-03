@@ -1,7 +1,7 @@
 
 package io.ivy.fawkes;
 
-import io.ivy.fawkes.beton.TestEvent;
+import io.ivy.fawkes.beton.events.*;
 
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,7 +17,8 @@ public class Fawkes extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(events, this);
 
-        BetonQuest.getInstance().registerEvents("testevent", TestEvent.class);
+        BetonQuest.getInstance().registerEvents("ivy.testevent", TestEvent.class);
+        BetonQuest.getInstance().registerEvents("ivy.questcomplete", QuestComplete.class);
     }
 
     @Override

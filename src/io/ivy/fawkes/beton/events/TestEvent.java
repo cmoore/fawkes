@@ -1,14 +1,13 @@
 
-package io.ivy.fawkes.beton;
-
-import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
+package io.ivy.fawkes.beton.events;
 
 import pl.betoncraft.betonquest.core.QuestEvent;
+
+import org.bukkit.event.Listener;
 
 public class TestEvent extends QuestEvent implements Listener {
     public TestEvent(String playerID, String instructions) {
         super(playerID, instructions);
-        getLogger().info("TEST EVENT: " + instructions);
+        System.out.println("This is a test.");
     }
 }
