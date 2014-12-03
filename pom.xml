@@ -9,7 +9,7 @@
   <repositories>
     <repository>
       <id>ivy.io</id>
-      <url>http://localhost/~cmoore/repository/</url>
+      <url>http://192.168.0.210/~cmoore/repository/</url>
     </repository>
   </repositories>
   <dependencies>
