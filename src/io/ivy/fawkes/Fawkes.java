@@ -5,6 +5,7 @@ import io.ivy.fawkes.beton.events.*;
 
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.event.EventHandler;
 
 import pl.betoncraft.betonquest.BetonQuest;
 
