@@ -53,7 +53,7 @@ public class Events implements Listener {
         }
 
         if (entity instanceof LightningStrike) {
-            fawkes.getLogger().info("BZZZZZT");
+            fawkes.log("BZZZZZT");
         }
         
         List<MetadataValue> level_values = entity.getMetadata("ivy.level");
@@ -89,7 +89,7 @@ public class Events implements Listener {
             new_damage_level = 0;
         }
         
-        fawkes.getLogger().info(damager + "(" + find_mob_level(damager) + ") HIT " +
+        fawkes.log(damager + "(" + find_mob_level(damager) + ") HIT " +
                                 target + "(" + find_mob_level(target) + ") for " +
                                 pre_damage + "/" + end_damage + " -> " + new_damage_level);
         event.setDamage(new_damage_level);
@@ -116,7 +116,7 @@ public class Events implements Listener {
             if (experience_to_add < 0)
                 experience_to_add = 0;
             
-            fawkes.getLogger().info(player.getName() + "(" + player_level + ") killed " + entity.getType().toString() + "(" + mob_level + ") for " + experience_to_add + " / " + xp_to_add + " xp.");
+            fawkes.log(player.getName() + "(" + player_level + ") killed " + entity.getType().toString() + "(" + mob_level + ") for " + experience_to_add + " / " + xp_to_add + " xp.");
 
             if (entity.hasMetadata("ivy.level")) {
                 player.giveExp(Integer.valueOf((int) Math.round(experience_to_add)));
@@ -135,7 +135,7 @@ public class Events implements Listener {
     		if (event.getFoodLevel() < 10) {
     			Player player = (Player) event.getEntity();
           int food_level = event.getFoodLevel();
-    			fawkes.getLogger().info("Food level: " + String.valueOf(food_level));
+    			fawkes.log("Food level: " + String.valueOf(food_level));
     		}
     	}
     }
@@ -144,11 +144,11 @@ public class Events implements Listener {
     // public void onPlayerInteract(PlayerInteractEvent event) {
     //     if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
     //         if (event.getClickedBlock().getState().getType().equals(Material.SIGN_POST)) {
-    //             fawkes.getLogger().info("You wot?");
+    //             fawkes.log("You wot?");
     //             Sign the_sign = (Sign) event.getClickedBlock().getState();
     //             if (the_sign.getLine(1).equals("chests")) {
     //                 List<Chest> chests = Utils.find_all_chests(event.getPlayer().getWorld());
-    //                 fawkes.getLogger().info("I found " + String.valueOf(chests.size()) + " chests.");
+    //                 fawkes.log("I found " + String.valueOf(chests.size()) + " chests.");
     //             }
     //         }
     //     }
