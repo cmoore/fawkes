@@ -2,10 +2,21 @@
 
 package io.ivy.fawkes;
 
+import com.sk89q.worldguard.bukkit.WGBukkit;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
+import static com.sk89q.worldguard.bukkit.BukkitUtil.*;
+
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.metadata.*;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.entity.*;
 
 import io.ivy.fawkes.Utils;
@@ -13,10 +24,36 @@ import io.ivy.fawkes.Utils;
 public class Spawner implements Listener {
 
   private final Fawkes fawkes;
+  private WorldGuardPlugin world_guard;
+  
+  private WorldGuardPlugin getWorldGuard() {
+	  Plugin plugin = fawkes.getServer().getPluginManager().getPlugin("WorldGuard");
+	  if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
+		  fawkes.getLogger().info("PANIC: Can't get a reference to the WorldGuard plugin instance!");
+		  fawkes.getLogger().info("THIS PLUGIN REQUIRES WORLDGUARD");
+		  return null;
+	  }
+	  
+	  return (WorldGuardPlugin) plugin;
+  }
+  
+  
+  
+  public Spawner(Fawkes instance) {
+	  fawkes = instance;
+	  Plugin plugin = fawkes.getServer().getPluginManager().getPlugin("WorldGuard");
+	  if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
+		  return;
+	  }
+	  world_guard = (WorldGuardPlugin) plugin;
+  }
   
   @EventHandler
   public void onCreatureSpawn(CreatureSpawnEvent event) {
 
+	  String region_name = world_guard.getName();
+	  fawkes.getLogger().info("REGION NAME: " + region_name);
+	  
     if (event.getCreatureType() != null) {
       Entity entity = event.getEntity();
       
@@ -26,11 +63,11 @@ public class Spawner implements Listener {
         event.setCancelled(true);
       }
 
-      int level = mob_level();
+      int level = Utils.mob_level();
       
       if (event.getCreatureType().equals(CreatureType.ZOMBIE)) {
         
-        if (random_chance(1,1000) > 999) {
+        if (Utils.random_chance(1,1000) > 999) {
           entity.setCustomName("§e(10) §cCrazel");
           entity.setCustomNameVisible(true);
           entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, "10"));
@@ -42,7 +79,7 @@ public class Spawner implements Listener {
       }
       
       if (event.getCreatureType().equals(CreatureType.SKELETON)) {
-        if (random_chance(1,1000) > 999) {
+        if (Utils.random_chance(1,1000) > 999) {
           entity.setCustomName("§e(10) §cMr. Skellington");
           entity.setCustomNameVisible(true);
           entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, "10"));

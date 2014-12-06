@@ -10,14 +10,13 @@ import org.bukkit.event.EventHandler;
 import pl.betoncraft.betonquest.BetonQuest;
 
 public class Fawkes extends JavaPlugin {
-
-    private final Events events = new Events(this);
     
     @Override
     public void onEnable() {
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(events, this);
-
+        pm.registerEvents(new Events(this), this);
+        pm.registerEvents(new Spawner(this), this);
+        
         // We name them ivy.x to differentiate them from the built-in or
         // scripted events.
         BetonQuest.getInstance().registerEvents("ivy.testevent", TestEvent.class);

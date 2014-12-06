@@ -31,10 +31,6 @@ public class Events implements Listener {
         fawkes = instance;
     }
 
-    public static int mob_level() {
-       return random_chance(1,20);
-    }
-
     private int find_mob_level(Entity entity) {
         
         if (entity.hasMetadata("NPC")) {

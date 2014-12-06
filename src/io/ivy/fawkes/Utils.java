@@ -2,19 +2,19 @@
 
 package io.ivy.fawkes;
 
-import java.lang.Iterable;
-
 import java.util.List;
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Random;
 
 import org.bukkit.*;
 import org.bukkit.block.*;
-import org.bukkit.block.BlockState;
 
 
 public class Utils {
+	public static int mob_level() {
+        return random_chance(1,20);
+     }
+
   
   public static int random_chance(int min, int max) {
     Random rand = new Random();
@@ -22,7 +22,7 @@ public class Utils {
   }
   
   public static List<Chest> find_all_chests(World world) {
-    List<Chest> chests = new ArrayList();
+    List<Chest> chests = new ArrayList<Chest>();
     int tile_entities = 0;
     Chunk[] chunks = world.getLoadedChunks();
     
