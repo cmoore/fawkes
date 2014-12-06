@@ -1,14 +1,10 @@
 
 package io.ivy.fawkes.cmd;
 
-import java.util.ArrayList;
-
 import org.bukkit.entity.*;
 import org.bukkit.command.*;
 
 import io.ivy.fawkes.Fawkes;
-
-import redis.clients.jedis.*;
 
 
 public class Fks implements CommandExecutor {

@@ -3,33 +3,12 @@
 package io.ivy.fawkes;
 
 
-import static com.sk89q.worldguard.bukkit.BukkitUtil.*;
-
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.blocks.BlockType;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.bukkit.WGBukkit;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-
-import org.bukkit.Bukkit;
-import org.bukkit.block.*;
 import org.bukkit.entity.*;
 import org.bukkit.metadata.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.block.Action;
-
 import io.ivy.fawkes.Utils;
-import io.ivy.fawkes.WG;
-
-import redis.clients.jedis.*;
 
 public class Spawner implements Listener {
 
@@ -46,7 +25,7 @@ public class Spawner implements Listener {
     
     Entity the_entity = event.getEntity();
 
-    String this_region_id = WG.region_for_entity(the_entity).getID();
+    String this_region_id = fawkes.region_for_entity(the_entity);
     
     fawkes.log("Spawn in region: " + this_region_id);
     
