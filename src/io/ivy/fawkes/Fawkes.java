@@ -2,6 +2,7 @@
 package io.ivy.fawkes;
 
 import io.ivy.fawkes.beton.events.*;
+import io.ivy.fawkes.cmd.*;
 
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,6 +17,8 @@ public class Fawkes extends JavaPlugin {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new Events(this), this);
         pm.registerEvents(new Spawner(this), this);
+
+        getCommand("fks").setExecutor(new Fks(this));
         
         // We name them ivy.x to differentiate them from the built-in or
         // scripted events.

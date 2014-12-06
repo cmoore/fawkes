@@ -140,19 +140,19 @@ public class Events implements Listener {
     	}
     }
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            if (event.getClickedBlock().getState().getType().equals(Material.SIGN_POST)) {
-                fawkes.getLogger().info("You wot?");
-                Sign the_sign = (Sign) event.getClickedBlock().getState();
-                if (the_sign.getLine(1).equals("chests")) {
-                    List<Chest> chests = Utils.find_all_chests(event.getPlayer().getWorld());
-                    fawkes.getLogger().info("I found " + String.valueOf(chests.size()) + " chests.");
-                }
-            }
-        }
-    }
+    // @EventHandler
+    // public void onPlayerInteract(PlayerInteractEvent event) {
+    //     if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+    //         if (event.getClickedBlock().getState().getType().equals(Material.SIGN_POST)) {
+    //             fawkes.getLogger().info("You wot?");
+    //             Sign the_sign = (Sign) event.getClickedBlock().getState();
+    //             if (the_sign.getLine(1).equals("chests")) {
+    //                 List<Chest> chests = Utils.find_all_chests(event.getPlayer().getWorld());
+    //                 fawkes.getLogger().info("I found " + String.valueOf(chests.size()) + " chests.");
+    //             }
+    //         }
+    //     }
+    // }
 
     // @EventHandler
     // private void onChunkLoad(ChunkLoadEvent event){

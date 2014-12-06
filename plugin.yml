@@ -2,3 +2,8 @@ name: Fawkes
 main: io.ivy.fawkes.Fawkes
 version: 0.0.1
 depend: [BetonQuest]
+commands:
+  fks:
+    description: 'Sets the level range of a region.'
+    usage: /fks min_level max_level
+    permission: fawkes.fks

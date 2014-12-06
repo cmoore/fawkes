@@ -9,12 +9,13 @@ import java.util.Random;
 import org.bukkit.*;
 import org.bukkit.block.*;
 
+import redis.clients.jedis.*;
+
 
 public class Utils {
 	public static int mob_level() {
-        return random_chance(1,20);
-     }
-
+    return random_chance(1,20);
+  }
   
   public static int random_chance(int min, int max) {
     Random rand = new Random();
@@ -29,7 +30,6 @@ public class Utils {
     Bukkit.getLogger().info("Found " + String.valueOf(chunks.length) + " chunks.");
     
     for (Chunk c : chunks) {
-      
       for (BlockState b : c.getTileEntities()) {
         tile_entities++;
         
@@ -52,7 +52,12 @@ public class Utils {
         }
       }
     }
+    
     Bukkit.getLogger().info("Found " + String.valueOf(tile_entities) + " TileEntities.");
     return chests;
+  }
+
+  public static Jedis open_database() {
+    return new Jedis("192.168.0.210");
   }
 }
