@@ -21,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import io.ivy.fawkes.Utils;
+import org.bukkit.projectiles.ProjectileSource;
 
 public class Events implements Listener {
 
@@ -30,18 +31,33 @@ public class Events implements Listener {
         fawkes = instance;
     }
 
-    public static int random_chance(int min, int max) {
-        Random rand = new Random();
-        return rand.nextInt((max - min) + 1) + min;
-    }
-    
     public static int mob_level() {
-       return random_chance(1,9);
+       return random_chance(1,20);
     }
 
     private int find_mob_level(Entity entity) {
+        
+        if (entity.hasMetadata("NPC")) {
+            return 5;
+        }
+
+        if (entity.getType().equals(EntityType.LIGHTNING)) {
+            return 5;
+        }
+        
         if (entity.getType().equals(EntityType.PLAYER)) {
             return ((Player)entity).getLevel();
+        }
+
+        if (entity instanceof Projectile) {
+            Projectile p = (Projectile) entity;
+            if (p.getShooter() instanceof Player) {
+                return find_mob_level((Player)p.getShooter());
+            }
+        }
+
+        if (entity instanceof LightningStrike) {
+            fawkes.getLogger().info("BZZZZZT");
         }
         
         List<MetadataValue> level_values = entity.getMetadata("ivy.level");
@@ -53,76 +69,34 @@ public class Events implements Listener {
         }
     }
     
-    @EventHandler
-    public void onCreatureSpawn(CreatureSpawnEvent event) {
 
-        if (event.getCreatureType() != null) {
-            Entity entity = event.getEntity();
-            
-            if (event.getCreatureType().equals(CreatureType.ENDERMAN) ||
-                event.getCreatureType().equals(CreatureType.CREEPER) ||
-                event.getCreatureType().equals(CreatureType.SPIDER)) {
-                event.setCancelled(true);
-            }
-            
-            if (event.getCreatureType().equals(CreatureType.ZOMBIE)) {
-                
-                if (random_chance(1,1000) > 999) {
-                    entity.setCustomName("§cCrazel");
-                    entity.setCustomNameVisible(true);
-                    entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, "10"));
-                } else {
-                    entity.setCustomName("§9Skeleton");
-                    entity.setCustomNameVisible(true);
-                    entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, String.valueOf(mob_level())));
-                }
-            }
-            
-            if (event.getCreatureType().equals(CreatureType.SKELETON)) {
-                if (random_chance(1,1000) > 999) {
-                    entity.setCustomName("§cMr. Skellington");
-                    entity.setCustomNameVisible(true);
-                    entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, "10"));
-                } else {
-                    entity.setCustomName("§9Skeleton");
-                    entity.setCustomNameVisible(true);
-                    entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, String.valueOf(mob_level())));
-                }
-            }
-        }
-    }
-    
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+
+        Entity damager = event.getDamager();
+        Entity target = event.getEntity();
         
-        if (event.getDamager().getType().equals(EntityType.PLAYER) ||
-            event.getEntity().getType().equals(EntityType.PLAYER)) {
-
-            
-            Entity damager = event.getDamager();
-            Entity target = event.getEntity();
-
-            Double pre_damage = Double.valueOf(event.getDamage());
-            Double end_damage = Double.valueOf(event.getFinalDamage());
-
-            String damager_type = damager.getType().toString();
-            String target_type = target.getType().toString();
-
-            int damager_level = find_mob_level(damager);
-            int target_level = find_mob_level(target);
-
-
-            double level_difference = damager_level - target_level;
-
-            double new_damage_level = end_damage + (level_difference * .5);
-            
-            float damage_adjust = 1;
-                            
-            fawkes.getLogger().info(damager + "(" + String.valueOf(find_mob_level(damager)) + ") HIT " +
-                                    target + "(" + String.valueOf(find_mob_level(target)) + ") for " +
-                                    String.valueOf(pre_damage) + "/" + String.valueOf(end_damage) + " mod: " +
-                                    String.valueOf(new_damage_level));
+        Double pre_damage = Double.valueOf(event.getDamage());
+        Double end_damage = Double.valueOf(event.getFinalDamage());
+        
+        String damager_type = damager.getType().toString();
+        String target_type = target.getType().toString();
+        
+        int damager_level = find_mob_level(damager);
+        int target_level = find_mob_level(target);
+        
+        double level_difference = damager_level - target_level;
+        
+        double new_damage_level = end_damage + (level_difference * .5);
+        
+        if (new_damage_level < 0) {
+            new_damage_level = 0;
         }
+        
+        fawkes.getLogger().info(damager + "(" + find_mob_level(damager) + ") HIT " +
+                                target + "(" + find_mob_level(target) + ") for " +
+                                pre_damage + "/" + end_damage + " -> " + new_damage_level);
+        event.setDamage(new_damage_level);
     }
 
     // private int damage_bonus(int level_attacker, int level_target, int base_hit) {
@@ -132,15 +106,24 @@ public class Events implements Listener {
     
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        
         if (event.getEntity().getKiller() != null) {
             
             Entity entity = event.getEntity();
             Player player = event.getEntity().getKiller();
+
+            int player_level = player.getLevel();
+            int mob_level = find_mob_level(entity);
+
+            double experience_to_add = (mob_level - player_level) * .5;
+            int xp_to_add = Integer.valueOf((int) Math.round(experience_to_add));
             
-            fawkes.getLogger().info(player.getName() + " killed a " + entity.getType().toString() + ".");
+            if (experience_to_add < 0)
+                experience_to_add = 0;
+            
+            fawkes.getLogger().info(player.getName() + "(" + player_level + ") killed " + entity.getType().toString() + "(" + mob_level + ") for " + experience_to_add + " / " + xp_to_add + " xp.");
+
             if (entity.hasMetadata("ivy.level")) {
-                player.giveExp(1);
+                player.giveExp(Integer.valueOf((int) Math.round(experience_to_add)));
             }
         }
     }
@@ -175,13 +158,11 @@ public class Events implements Listener {
         }
     }
 
-    @EventHandler
-    private void onChunkLoad(ChunkLoadEvent event){
-        Chunk c = event.getChunk();
-        for(BlockState b:c.getTileEntities()) {
-            Bukkit.broadcastMessage(String.join(" ", (String) b.getWorld().getName(), Integer.toString(b.getX()), Integer.toString(b.getY()), Integer.toString(b.getZ()), Integer.toString(b.getBlock().getTypeId()), Byte.toString(b.getBlock().getData()), b.getData().getItemType().name()));
-        }
-    }
-
-
+    // @EventHandler
+    // private void onChunkLoad(ChunkLoadEvent event){
+    //     Chunk c = event.getChunk();
+    //     for(BlockState b:c.getTileEntities()) {
+    //         Bukkit.broadcastMessage(String.join(" ", (String) b.getWorld().getName(), Integer.toString(b.getX()), Integer.toString(b.getY()), Integer.toString(b.getZ()), Integer.toString(b.getBlock().getTypeId()), Byte.toString(b.getBlock().getData()), b.getData().getItemType().name()));
+    //     }
+    // }
 }

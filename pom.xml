@@ -61,7 +61,7 @@
              </excludes>
            </artifactSet>
            <finalName>shade</finalName>
-           <outputFile>/home/cmoore/mc/servers/fawkes/plugins/${project.artifactId}-${project.version}.jar</outputFile>
+           <outputFile>/home/cmoore/mc/servers/pvp/plugins/${project.artifactId}-${project.version}.jar</outputFile>
            <shadedArtifactAttached>false</shadedArtifactAttached>
            <shadedClassifierName>shaded</shadedClassifierName>
          </configuration>
