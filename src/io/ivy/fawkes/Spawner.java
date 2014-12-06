@@ -27,23 +27,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.block.Action;
 
 import io.ivy.fawkes.Utils;
+import io.ivy.fawkes.WG;
 
 import redis.clients.jedis.*;
 
 public class Spawner implements Listener {
 
   private final Fawkes fawkes;
-
-  private WorldGuardPlugin getWorldGuard() {
-	  Plugin plugin = fawkes.getServer().getPluginManager().getPlugin("WorldGuard");
-	  if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
-		  fawkes.log("PANIC: Can't get a reference to the WorldGuard plugin instance!");
-		  fawkes.log("THIS PLUGIN REQUIRES WORLDGUARD");
-		  return null;
-	  }
-	  
-	  return (WorldGuardPlugin) plugin;
-  }
 
   public Spawner(Fawkes instance) {
     fawkes = instance;
@@ -55,24 +45,17 @@ public class Spawner implements Listener {
     fawkes.log("Creature spawning...");
     
     Entity the_entity = event.getEntity();
+
+    String this_region_id = WG.region_for_entity(the_entity).getID();
     
-    WorldGuardPlugin plugin = getWorldGuard();
-
-    Vector pt = toVector(the_entity.getLocation());
-
-    RegionManager region_manager = plugin.getRegionManager(the_entity.getLocation().getWorld());
-    ApplicableRegionSet regions = region_manager.getApplicableRegions(pt);
-
-    for (ProtectedRegion region : regions) {
-      fawkes.log("Spawn in region: " + region.getId());
-    }
+    fawkes.log("Spawn in region: " + this_region_id);
     
     if (event.getCreatureType() != null) {
       Entity entity = event.getEntity();
-      
-      if (event.getCreatureType().equals(CreatureType.ENDERMAN) ||
-          event.getCreatureType().equals(CreatureType.CREEPER) ||
-          event.getCreatureType().equals(CreatureType.SPIDER)) {
+
+      if (entity.getType().equals(CreatureType.ENDERMAN) ||
+          entity.getType().equals(CreatureType.CREEPER) ||
+          entity.getType().equals(CreatureType.SPIDER)) {
         fawkes.log("Spawn cancelled.");
         event.setCancelled(true);
       }
