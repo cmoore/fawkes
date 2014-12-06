@@ -4,8 +4,10 @@ package io.ivy.fawkes.cmd;
 import org.bukkit.entity.*;
 import org.bukkit.command.*;
 
-import io.ivy.fawkes.Fawkes;
+import redis.clients.jedis.*;
 
+import io.ivy.fawkes.Fawkes;
+import io.ivy.fawkes.Utils;
 
 public class Fks implements CommandExecutor {
 
@@ -48,6 +50,18 @@ public class Fks implements CommandExecutor {
 
         String min_range = args[1];
         String max_range = args[2];
+
+        String region = fawkes.region_for_entity((Entity)sender);
+
+        if (region != null) {
+          fawkes.log("range called with: " + min_range + " " + max_range + " in " + region);
+
+          Jedis j = Utils.open_database();
+
+          
+          
+        
+        return true;
       }        
       
     }

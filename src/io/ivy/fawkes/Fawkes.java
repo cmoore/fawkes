@@ -1,3 +1,4 @@
+// -*- Mode: jde; eval: (hs-hide-level 2) -*-
 
 package io.ivy.fawkes;
 
@@ -14,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.*;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
@@ -56,8 +58,13 @@ public class Fawkes extends JavaPlugin {
     Vector pt = toVector(entity.getLocation());
 
     RegionManager region_manager = getWorldGuard().getRegionManager(entity.getLocation().getWorld());
-    return region_manager.getApplicableRegions(pt).iterator().next().getId();
-    
+
+    ApplicableRegionSet px = region_manager.getApplicableRegions(pt);
+    if (px.size() < 1) {
+      return null;
+    } else {
+      return px.iterator().next().getId();
+    }
   }
   
   public void log(String message) {
