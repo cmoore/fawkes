@@ -21,9 +21,12 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import pl.betoncraft.betonquest.BetonQuest;
 
+import redis.clients.jedis.*;
+
 public class Fawkes extends JavaPlugin {
 
   public boolean verbose = false;
+  public JedisPool pool;
   
   @Override
   public void onEnable() {
@@ -37,10 +40,15 @@ public class Fawkes extends JavaPlugin {
     // scripted events.
     BetonQuest.getInstance().registerEvents("ivy.testevent", TestEvent.class);
     BetonQuest.getInstance().registerEvents("ivy.questcomplete", QuestComplete.class);
+    BetonQuest.getInstance().registerEvents("ivy.fish_event_give_xp", FishEventGiveXP.class);
+    BetonQuest.getInstance().registerEvents("ivy.test_reset_xp", TestResetXP.class);
+    
+    pool = new JedisPool(new JedisPoolConfig(), "localhost");
   }
   
   @Override
   public void onDisable() {
+    pool.destroy();
   }
   
   public WorldGuardPlugin getWorldGuard() {

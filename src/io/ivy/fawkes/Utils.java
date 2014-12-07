@@ -56,8 +56,4 @@ public class Utils {
     Bukkit.getLogger().info("Found " + String.valueOf(tile_entities) + " TileEntities.");
     return chests;
   }
-
-  public static Jedis open_database() {
-    return new Jedis("192.168.0.210");
-  }
 }

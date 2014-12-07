@@ -26,25 +26,20 @@ public class Spawner implements Listener {
     Entity the_entity = event.getEntity();
 
     String this_region_id = fawkes.region_for_entity(the_entity);
-    
-    fawkes.log("Spawn in region: " + this_region_id);
-    
     String this_region = fawkes.region_for_entity(the_entity);
+
+    if (this_region == null) {
+      this_region = "global";
+    }
+
     
-    Jedis j = Utils.open_database();
+    Jedis j = fawkes.pool.getResource();
     String min = j.get("fawkes.regions." + this_region + ".min");
     String max = j.get("fawkes.regions." + this_region + ".max");
     j.close();
     
-    
     if (event.getCreatureType() != null) {
       Entity entity = event.getEntity();
-
-      if (entity.getType().equals(CreatureType.ENDERMAN) ||
-          entity.getType().equals(CreatureType.CREEPER) ||
-          entity.getType().equals(CreatureType.SPIDER)) {
-        event.setCancelled(true);
-      }
       
       int level = 1;
       
@@ -52,26 +47,21 @@ public class Spawner implements Listener {
     	  int min_level = Integer.parseInt(min);
     	  int max_level = Integer.parseInt(max);
     	  level = Utils.random_chance(min_level, max_level);
-    	  fawkes.log("Found region AND level information. Spawning shall commence.");
-      } else {
-    	  fawkes.log("Not spawning a mob without level information.");
-    	  event.setCancelled(true);
-    	  return;
       }
-      
+
       if (event.getCreatureType().equals(CreatureType.ZOMBIE)) {
         
         if (Utils.random_chance(1,1000) > 999) {
           entity.setCustomName("§e(10) §cCrazel");
           entity.setCustomNameVisible(true);
           entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, "10"));
-          fawkes.log("Spawned zombie *(10)");
+          fawkes.log("Spawned zombie *(10) in " + this_region);
           return;
         } else {
           entity.setCustomName("§e(" + level + ") §9Zombie");
           entity.setCustomNameVisible(true);
           entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, String.valueOf(level)));
-          fawkes.log("Spawned zombie (" + level + ")");
+          fawkes.log("Spawned zombie (" + level + ") in " + this_region);
           return;
         }
       }
@@ -81,17 +71,20 @@ public class Spawner implements Listener {
           entity.setCustomName("§e(10) §cMr. Skellington");
           entity.setCustomNameVisible(true);
           entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, "10"));
-          fawkes.log("Spawned skeleton *(10)");
+          fawkes.log("Spawned skeleton *(10) in " + this_region);
           return;
         } else {
           entity.setCustomName("§e(" + level + ") §9Skeleton");
           entity.setCustomNameVisible(true);
           entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, String.valueOf(level)));
-          fawkes.log("Spawned skeleton (" + level + ")");
+          fawkes.log("Spawned skeleton (" + level + ") in " + this_region);
           return;
         }
       }
-      fawkes.log("Spawner fell through: " + the_entity.getType().toString());
+      entity.setCustomName("§e(" + level + ") §9" + entity.getType().toString());
+      entity.setCustomNameVisible(true);
+      entity.setMetadata("ivy.level", new FixedMetadataValue(fawkes, String.valueOf(level)));
+      fawkes.log("Spawned " + entity.getType().toString() + " (" + level + ") in " + this_region);
     }
   }
 

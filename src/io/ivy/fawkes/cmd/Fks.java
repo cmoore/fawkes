@@ -1,3 +1,4 @@
+// -*- Mode: jde; eval: (hs-hide-level 2) -*-
 
 package io.ivy.fawkes.cmd;
 
@@ -44,6 +45,7 @@ public class Fks implements CommandExecutor {
       }
 
       if (sub_command.equals("range")) {
+        
         if (args.length < 3) {
           return false;
         }
@@ -56,17 +58,19 @@ public class Fks implements CommandExecutor {
         if (region != null) {
           fawkes.log("range called with: " + min_range + " " + max_range + " in " + region);
 
-          Jedis j = Utils.open_database();
+          Jedis j = fawkes.pool.getResource();
           j.set("fawkes.regions." + region + ".min", min_range);
           j.set("fawkes.regions." + region + ".max", max_range);
-          j.close();
           fawkes.log("Region levels set!");
+          j.close();
+          sender.sendMessage("Region level range set.");
           return true;
+        } else {
+          sender.sendMessage("You aren't in a region!");
+          return false;
         }
-        return true;
-      }        
-      
+      }
     }
     return false;
   }
-}    
+}
