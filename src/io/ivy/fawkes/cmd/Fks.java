@@ -57,10 +57,12 @@ public class Fks implements CommandExecutor {
           fawkes.log("range called with: " + min_range + " " + max_range + " in " + region);
 
           Jedis j = Utils.open_database();
-
-          
-          
-        
+          j.set("fawkes.regions." + region + ".min", min_range);
+          j.set("fawkes.regions." + region + ".max", max_range);
+          j.close();
+          fawkes.log("Region levels set!");
+          return true;
+        }
         return true;
       }        
       

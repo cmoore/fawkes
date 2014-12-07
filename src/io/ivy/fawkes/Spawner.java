@@ -8,6 +8,8 @@ import org.bukkit.metadata.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+
+import redis.clients.jedis.Jedis;
 import io.ivy.fawkes.Utils;
 
 public class Spawner implements Listener {
@@ -20,8 +22,6 @@ public class Spawner implements Listener {
   
   @EventHandler
   public void onCreatureSpawn(CreatureSpawnEvent event) {
-
-    fawkes.log("Creature spawning...");
     
     Entity the_entity = event.getEntity();
 
@@ -29,17 +29,35 @@ public class Spawner implements Listener {
     
     fawkes.log("Spawn in region: " + this_region_id);
     
+    String this_region = fawkes.region_for_entity(the_entity);
+    
+    Jedis j = Utils.open_database();
+    String min = j.get("fawkes.regions." + this_region + ".min");
+    String max = j.get("fawkes.regions." + this_region + ".max");
+    j.close();
+    
+    
     if (event.getCreatureType() != null) {
       Entity entity = event.getEntity();
 
       if (entity.getType().equals(CreatureType.ENDERMAN) ||
           entity.getType().equals(CreatureType.CREEPER) ||
           entity.getType().equals(CreatureType.SPIDER)) {
-        fawkes.log("Spawn cancelled.");
         event.setCancelled(true);
       }
       
-      int level = Utils.mob_level();
+      int level = 1;
+      
+      if (min != null && max != null) {
+    	  int min_level = Integer.parseInt(min);
+    	  int max_level = Integer.parseInt(max);
+    	  level = Utils.random_chance(min_level, max_level);
+    	  fawkes.log("Found region AND level information. Spawning shall commence.");
+      } else {
+    	  fawkes.log("Not spawning a mob without level information.");
+    	  event.setCancelled(true);
+    	  return;
+      }
       
       if (event.getCreatureType().equals(CreatureType.ZOMBIE)) {
         
@@ -73,7 +91,6 @@ public class Spawner implements Listener {
           return;
         }
       }
-
       fawkes.log("Spawner fell through: " + the_entity.getType().toString());
     }
   }
