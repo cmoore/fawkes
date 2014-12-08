@@ -163,7 +163,6 @@ public class Events implements Listener {
   }
 
 
-
   public int find_zero_difference(int cl) {
     // cl = character level.
     
@@ -196,12 +195,15 @@ public class Events implements Listener {
   }
 
   private void mark_chest_regular(Chest chest) {
+    fawkes.log("Little loots.");
   }
 
   private void mark_chest_large(Chest chest) {
+    fawkes.log("Kinda big loots.");
   }
 
   private void mark_chest_murca(Chest chest) {
+    fawkes.log("Fat ass fuckin' loots!");
   }
 
   @EventHandler
@@ -212,21 +214,22 @@ public class Events implements Listener {
           if (event.getPlayer().getItemInHand() != null) {
             
             ItemStack held = event.getPlayer().getItemInHand();
-
+            Chest chest = (Chest) event.getClickedBlock().getState();
+            
             if (held.getType().equals(Material.STICK)) {
 
-              String loot_type = held.getItemMeta().getLore();
-              
+              String loot_type = held.getItemMeta().getLore().get(0);
+
               if (loot_type.equals("regular")) {
-                mark_chest_regular( (Chest) event.getClickedBlock() );
+                mark_chest_regular(chest);
               }
               
               if (loot_type.equals("large")) {
-                mark_chest_large( (Chest) event.getClickedBlock() );
+                mark_chest_large(chest);
               }
 
               if (loot_type.equals("murca")) {
-                mark_chest_murca( (Chest) event.getClickedBlock() );
+                mark_chest_murca(chest);
               }
             }
           }
@@ -234,13 +237,4 @@ public class Events implements Listener {
       }
     }
   }
-  
-  @EventHandler
-  private void onChunkLoad(ChunkLoadEvent event){
-    Chunk c = event.getChunk();
-    for(BlockState b:c.getTileEntities()) {
-      Bukkit.broadcastMessage(String.join(" ", (String) b.getWorld().getName(), Integer.toString(b.getX()), Integer.toString(b.getY()), Integer.toString(b.getZ()), Integer.toString(b.getBlock().getTypeId()), Byte.toString(b.getBlock().getData()), b.getData().getItemType().name()));
-    }
-  }
-  
 }
