@@ -2,27 +2,20 @@
 
 package io.ivy.fawkes;
 
-import java.util.Random;
 import java.util.List;
+
 
 
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.metadata.*;
-
 import org.bukkit.entity.*;
-
 import org.bukkit.event.player.*;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.world.*;
-
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import io.ivy.fawkes.Utils;
-import org.bukkit.projectiles.ProjectileSource;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.ItemStack;
 
 public class Events implements Listener {
@@ -195,14 +188,17 @@ public class Events implements Listener {
   }
 
   private void mark_chest_regular(Chest chest) {
+	  chest.setMetadata("ivy.loot", new FixedMetadataValue(fawkes, "small"));
     fawkes.log("Little loots.");
   }
 
   private void mark_chest_large(Chest chest) {
+	  chest.setMetadata("ivy.loot", new FixedMetadataValue(fawkes, "medium"));
     fawkes.log("Kinda big loots.");
   }
 
   private void mark_chest_murca(Chest chest) {
+	  chest.setMetadata("ivy.loot", new FixedMetadataValue(fawkes, "murca"));
     fawkes.log("Fat ass fuckin' loots!");
   }
 
@@ -230,6 +226,10 @@ public class Events implements Listener {
 
               if (loot_type.equals("murca")) {
                 mark_chest_murca(chest);
+              }
+              
+              if (loot_type.equals("view")) {
+            	  fawkes.log("Loot Tag: " + chest.getMetadata("ivy.loot"));
               }
             }
           }

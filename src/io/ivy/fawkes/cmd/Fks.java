@@ -3,15 +3,19 @@
 package io.ivy.fawkes.cmd;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.entity.*;
+import org.bukkit.block.Chest;
 import org.bukkit.command.*;
 
 import redis.clients.jedis.*;
-
 import io.ivy.fawkes.Fawkes;
+import io.ivy.fawkes.LootTables;
 import io.ivy.fawkes.Utils;
+
 import org.bukkit.Material;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -77,6 +81,22 @@ public class Fks implements CommandExecutor {
         }
       }
 
+      if (sub_command.equals("reloot")) {
+    	  Player player = (Player) sender;
+    	  List<Chest> chests = Utils.find_all_chests(player.getWorld());
+    	  
+    	  for (Chest chest : chests) {
+    		  
+			  Inventory inventory = chest.getInventory();
+    		  int i = Utils.random_chance(2, 8);
+    		  
+    		  for (int x = 0; x <= i; x++) {
+    			  ItemStack istack = new ItemStack(LootTables.get_random_material(), 1);
+    			  
+    			  inventory.addItem(istack);
+    		  }
+    	  }
+      }
       if (sub_command.equals("sticks")) {
         
         Player player = (Player) sender;
@@ -108,9 +128,20 @@ public class Fks implements CommandExecutor {
         boss_meta.setDisplayName("Stick of fat-ass loots.");
         boss_stick.setItemMeta(boss_meta);
         
+        ItemStack view_stick = new ItemStack(Material.STICK, 1);
+        ArrayList<String> view_lore = new ArrayList<String>();
+        ItemMeta view_meta = view_stick.getItemMeta();
+        
+        view_lore.add("view");
+        view_meta.setLore(view_lore);
+        view_meta.setDisplayName("Stick of Viewing");
+        view_stick.setItemMeta(view_meta);
+        
+        
         player.getInventory().addItem(regular_stick);
         player.getInventory().addItem(high_stick);
         player.getInventory().addItem(boss_stick);
+        player.getInventory().addItem(view_stick);
         
         return true;
       }
