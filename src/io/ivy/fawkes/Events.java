@@ -22,6 +22,8 @@ import org.bukkit.event.Listener;
 
 import io.ivy.fawkes.Utils;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.ItemStack;
 
 public class Events implements Listener {
 
@@ -192,26 +194,53 @@ public class Events implements Listener {
       return 17;
     return 18;
   }
-  
-    // @EventHandler
-    // public void onPlayerInteract(PlayerInteractEvent event) {
-    //     if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-    //         if (event.getClickedBlock().getState().getType().equals(Material.SIGN_POST)) {
-    //             fawkes.log("You wot?");
-    //             Sign the_sign = (Sign) event.getClickedBlock().getState();
-    //             if (the_sign.getLine(1).equals("chests")) {
-    //                 List<Chest> chests = Utils.find_all_chests(event.getPlayer().getWorld());
-    //                 fawkes.log("I found " + String.valueOf(chests.size()) + " chests.");
-    //             }
-    //         }
-    //     }
-    // }
 
-    // @EventHandler
-    // private void onChunkLoad(ChunkLoadEvent event){
-    //     Chunk c = event.getChunk();
-    //     for(BlockState b:c.getTileEntities()) {
-    //         Bukkit.broadcastMessage(String.join(" ", (String) b.getWorld().getName(), Integer.toString(b.getX()), Integer.toString(b.getY()), Integer.toString(b.getZ()), Integer.toString(b.getBlock().getTypeId()), Byte.toString(b.getBlock().getData()), b.getData().getItemType().name()));
-    //     }
-    // }
+  private void mark_chest_regular(Chest chest) {
+  }
+
+  private void mark_chest_large(Chest chest) {
+  }
+
+  private void mark_chest_murca(Chest chest) {
+  }
+
+  @EventHandler
+  public void onPlayerInteract(PlayerInteractEvent event) {
+    if (event.getPlayer().hasPermission("fawkes.fks")) {
+      if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+        if (event.getClickedBlock().getType().equals(Material.CHEST)) {
+          if (event.getPlayer().getItemInHand() != null) {
+            
+            ItemStack held = event.getPlayer().getItemInHand();
+
+            if (held.getType().equals(Material.STICK)) {
+
+              String loot_type = held.getItemMeta().getLore();
+              
+              if (loot_type.equals("regular")) {
+                mark_chest_regular( (Chest) event.getClickedBlock() );
+              }
+              
+              if (loot_type.equals("large")) {
+                mark_chest_large( (Chest) event.getClickedBlock() );
+              }
+
+              if (loot_type.equals("murca")) {
+                mark_chest_murca( (Chest) event.getClickedBlock() );
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  @EventHandler
+  private void onChunkLoad(ChunkLoadEvent event){
+    Chunk c = event.getChunk();
+    for(BlockState b:c.getTileEntities()) {
+      Bukkit.broadcastMessage(String.join(" ", (String) b.getWorld().getName(), Integer.toString(b.getX()), Integer.toString(b.getY()), Integer.toString(b.getZ()), Integer.toString(b.getBlock().getTypeId()), Byte.toString(b.getBlock().getData()), b.getData().getItemType().name()));
+    }
+  }
+  
 }
