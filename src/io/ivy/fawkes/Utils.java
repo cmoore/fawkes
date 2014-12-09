@@ -6,8 +6,11 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
-import org.bukkit.*;
-import org.bukkit.block.*;
+import org.bukkit.Chunk;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 
 import redis.clients.jedis.*;
 

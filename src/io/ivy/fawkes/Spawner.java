@@ -2,12 +2,12 @@
 
 package io.ivy.fawkes;
 
-
-import org.bukkit.entity.*;
-import org.bukkit.metadata.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import redis.clients.jedis.Jedis;
 import io.ivy.fawkes.Utils;
@@ -38,7 +38,7 @@ public class Spawner implements Listener {
     String max = j.get("fawkes.regions." + this_region + ".max");
     j.close();
     
-    if (event.getCreatureType() != null) {
+    if (event.getEntityType() != null) {
       Entity entity = event.getEntity();
       
       int level = 1;
@@ -49,7 +49,7 @@ public class Spawner implements Listener {
     	  level = Utils.random_chance(min_level, max_level);
       }
 
-      if (event.getCreatureType().equals(CreatureType.ZOMBIE)) {
+      if (event.getEntityType().equals(EntityType.ZOMBIE)) {
         
         if (Utils.random_chance(1,1000) > 999) {
           entity.setCustomName("§e(10) §cCrazel");
@@ -66,7 +66,7 @@ public class Spawner implements Listener {
         }
       }
       
-      if (event.getCreatureType().equals(CreatureType.SKELETON)) {
+      if (event.getEntityType().equals(EntityType.SKELETON)) {
         if (Utils.random_chance(1,1000) > 999) {
           entity.setCustomName("§e(10) §cMr. Skellington");
           entity.setCustomNameVisible(true);
