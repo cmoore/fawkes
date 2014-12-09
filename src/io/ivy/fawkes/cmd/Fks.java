@@ -37,8 +37,14 @@ public class Fks implements CommandExecutor {
 
     if (sender.hasPermission("fawkes.fks")) {
       
+      if (args.length == 0) {
+        sender.sendMessage("fks [verbose | range | reloot]");
+        return true;
+      }
+      
       String sub_command = args[0];
-
+      sender.sendMessage("§eSubcommand: " + sub_command);
+      
       if (sub_command.equals("verbose")) {
         
         if (fawkes.verbose == true) {
@@ -80,23 +86,31 @@ public class Fks implements CommandExecutor {
           return false;
         }
       }
-
+      
       if (sub_command.equals("reloot")) {
+        
     	  Player player = (Player) sender;
     	  List<Chest> chests = Utils.find_all_chests(player.getWorld());
     	  
     	  for (Chest chest : chests) {
-    		  
-			  Inventory inventory = chest.getInventory();
-    		  int i = Utils.random_chance(2, 8);
-    		  
-    		  for (int x = 0; x <= i; x++) {
-    			  ItemStack istack = new ItemStack(LootTables.get_random_material(), 1);
-    			  
-    			  inventory.addItem(istack);
-    		  }
-    	  }
+          if (chest.getMetadata("ivy.loot").isEmpty()) {
+            continue;
+          } else {
+            Inventory inventory = chest.getInventory();
+            inventory.clear();
+            int i = Utils.random_chance(2, 8);
+            for (int x = 0; x <= i; x++) {
+              ItemStack istack = new ItemStack(LootTables.get_random_material(), 1);
+              
+              inventory.addItem(istack);
+            }
+          }
+        }
+        sender.sendMessage("§eRelooting chests finished.");
+        return true;
       }
+
+      
       if (sub_command.equals("sticks")) {
         
         Player player = (Player) sender;

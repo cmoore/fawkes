@@ -4,8 +4,6 @@ package io.ivy.fawkes;
 
 import java.util.List;
 
-
-
 import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.metadata.*;
@@ -26,40 +24,42 @@ public class Events implements Listener {
     fawkes = instance;
   }
 
-  private int find_mob_level(Entity entity) {
-    
-    if (entity.hasMetadata("NPC")) {
-      return 5;
-    }
-    
-    if (entity.getType().equals(EntityType.LIGHTNING)) {
-      return 5;
-    }
-        
-    if (entity.getType().equals(EntityType.PLAYER)) {
-      return ((Player)entity).getLevel();
-    }
-    
-    if (entity instanceof Projectile) {
-      Projectile p = (Projectile) entity;
-      if (p.getShooter() instanceof Player) {
-        return find_mob_level((Player)p.getShooter());
+  @EventHandler
+  public void onPlayerInteract(PlayerInteractEvent event) {
+    if (event.getPlayer().hasPermission("fawkes.fks")) {
+      if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+        if (event.getClickedBlock().getType().equals(Material.CHEST)) {
+          if (event.getPlayer().getItemInHand() != null) {
+            
+            ItemStack held = event.getPlayer().getItemInHand();
+            Chest chest = (Chest) event.getClickedBlock().getState();
+            
+            if (held.getType().equals(Material.STICK)) {
+
+              String loot_type = held.getItemMeta().getLore().get(0);
+
+              if (loot_type.equals("regular")) {
+                mark_chest_regular(chest);
+              }
+              
+              if (loot_type.equals("large")) {
+                mark_chest_large(chest);
+              }
+
+              if (loot_type.equals("murca")) {
+                mark_chest_murca(chest);
+              }
+              
+              if (loot_type.equals("view")) {
+            	  fawkes.log("Loot Tag: " + chest.getMetadata("ivy.loot"));
+              }
+            }
+          }
+        }
       }
     }
-    
-    if (entity instanceof LightningStrike) {
-      fawkes.log("BZZZZZT");
-    }
-    
-    List<MetadataValue> level_values = entity.getMetadata("ivy.level");
-    
-    if (level_values.isEmpty()) {
-      return 1;
-    } else {
-      return level_values.get(0).asInt();
-    }
   }
-  
+
   @EventHandler
   public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
     
@@ -99,42 +99,32 @@ public class Events implements Listener {
       
       int player_level = player.getLevel();
       int mob_level = find_mob_level(entity);
+
+      int xp_to_add = 0;
       
-      
-      
-      // http://www.wowwiki.com/Formulas:Mob_XP
-
-      double base_mob_xp = 0;
-
-      // knobs to turn...
-      if (mob_level < 6) {
-        base_mob_xp = mob_level * .5;
-      } else {
-        base_mob_xp = mob_level * .4;
-      }
-
-      double experience_to_add = 0;
-
-      if (player_level < mob_level) {
-        experience_to_add = base_mob_xp * (1 + 0.05 * (mob_level - player_level));
-      }
-
       if (player_level > mob_level) {
-        experience_to_add = base_mob_xp * (1 - (player_level - mob_level) / find_zero_difference(player_level));
+        if ((player_level - mob_level) > 4) {
+          return;
+        }
       }
 
-      if (player_level == mob_level) {
-        experience_to_add = ((player_level * 5) + 45) * .2;
+      if (mob_level <= 5) {
+        xp_to_add = 1;
+      }
+      if (mob_level > 5 && mob_level <= 9) {
+        xp_to_add = 2;
+      }
+
+      if (mob_level > 9 && mob_level <= 17) {
+        xp_to_add = 3;
+      }
+
+      if (mob_level > 17 && mob_level <= 28) {
+        xp_to_add = 5;
       }
       
-      double end_xp = Math.round(experience_to_add * .4);
-      
-      fawkes.log(player.getName() + "(" + player_level + ") killed " + entity.getType().toString() + "(" + mob_level + ") XP: " + base_mob_xp + " <> " + experience_to_add + " -> " + end_xp);
-
-      int ok_go = Integer.valueOf((int) Math.round(end_xp));
-      
-      player.giveExp(ok_go);
-      player.sendMessage("You recieve " + ok_go + " experience!");
+      player.giveExp(xp_to_add);
+      player.sendMessage("You recieve " + xp_to_add + " experience!");
 
     }
   }
@@ -155,6 +145,41 @@ public class Events implements Listener {
     }
   }
 
+  
+
+  private int find_mob_level(Entity entity) {
+    
+    if (entity.hasMetadata("NPC")) {
+      return 5;
+    }
+    
+    if (entity.getType().equals(EntityType.LIGHTNING)) {
+      return 5;
+    }
+        
+    if (entity.getType().equals(EntityType.PLAYER)) {
+      return ((Player)entity).getLevel();
+    }
+    
+    if (entity instanceof Projectile) {
+      Projectile p = (Projectile) entity;
+      if (p.getShooter() instanceof Player) {
+        return find_mob_level((Player)p.getShooter());
+      }
+    }
+    
+    if (entity instanceof LightningStrike) {
+      fawkes.log("BZZZZZT");
+    }
+    
+    List<MetadataValue> level_values = entity.getMetadata("ivy.level");
+    
+    if (level_values.isEmpty()) {
+      return 1;
+    } else {
+      return level_values.get(0).asInt();
+    }
+  }
 
   public int find_zero_difference(int cl) {
     // cl = character level.
@@ -202,39 +227,4 @@ public class Events implements Listener {
     fawkes.log("Fat ass fuckin' loots!");
   }
 
-  @EventHandler
-  public void onPlayerInteract(PlayerInteractEvent event) {
-    if (event.getPlayer().hasPermission("fawkes.fks")) {
-      if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-        if (event.getClickedBlock().getType().equals(Material.CHEST)) {
-          if (event.getPlayer().getItemInHand() != null) {
-            
-            ItemStack held = event.getPlayer().getItemInHand();
-            Chest chest = (Chest) event.getClickedBlock().getState();
-            
-            if (held.getType().equals(Material.STICK)) {
-
-              String loot_type = held.getItemMeta().getLore().get(0);
-
-              if (loot_type.equals("regular")) {
-                mark_chest_regular(chest);
-              }
-              
-              if (loot_type.equals("large")) {
-                mark_chest_large(chest);
-              }
-
-              if (loot_type.equals("murca")) {
-                mark_chest_murca(chest);
-              }
-              
-              if (loot_type.equals("view")) {
-            	  fawkes.log("Loot Tag: " + chest.getMetadata("ivy.loot"));
-              }
-            }
-          }
-        }
-      }
-    }
-  }
 }
