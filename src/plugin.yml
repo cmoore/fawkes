@@ -1,0 +1,9 @@
+name: fawkes
+main: io.ivy.fawkes.Main
+version: 0.0.9
+commands:
+  fawkes:
+    description: 'Testing a clojure command.'
+    usage: '/fawkes reloot'
+    permission: fawkes.fks
+    
