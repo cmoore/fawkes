@@ -5,9 +5,10 @@ package io.ivy.fawkes.cmd;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.entity.*;
 import org.bukkit.block.Chest;
 import org.bukkit.command.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import redis.clients.jedis.*;
 import io.ivy.fawkes.Fawkes;
