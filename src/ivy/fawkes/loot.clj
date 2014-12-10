@@ -1,8 +1,8 @@
 
-(ns io.ivy.fawkes.loot
+(ns ivy.fawkes.loot
   
-  (:require [io.ivy.bukkit.logging :as log]
-            [io.ivy.bukkit.commands :as cmd])
+  (:require [cljminecraft.logging :as log]
+            [cljminecraft.commands :as cmd])
   
   (:import [org.bukkit.block Chest]
            [org.bukkit.command Command CommandExecutor CommandSender]

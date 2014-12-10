@@ -1,8 +1,8 @@
 
-(ns io.ivy.fawkes.events
-  (:require [io.ivy.bukkit.events :as events]
-            [io.ivy.bukkit.logging :as log])
+(ns ivy.fawkes.events
+  (:require [cljminecraft.events :as events])
   (:import [org.bukkit Material]
+           [org.bukkit.entity Player]
            [org.bukkit.block Chest]
            [org.bukkit.inventory ItemStack]
            [org.bukkit.metadata FixedMetadataValue]
@@ -12,7 +12,6 @@
   (:use [clojure.string :only [join]]))
 
 (defonce ^:dynamic fawkes (atom nil))
-
 
 (defn say-user [event message]
   (.sendMessage (.getPlayer event) message))
@@ -55,3 +54,13 @@
   (.info (.getLogger @fawkes) "Loading events.")
   (events/register-eventlist @fawkes (events)))
 
+(defn make-sticks [^Player player]
+  (let [stick (.new ItemStack Material/STICK 1)
+        meta (.getItemMeta stick)
+        lore (.new java.util.ArrayList)]
+    (.add lore "regular")
+    (.setLore meta lore)
+    (.setDisplayName meta "Stick of Loots.")
+    (.setItemMeta stick meta)
+
+    (.. player getInventory addItem stick)))
