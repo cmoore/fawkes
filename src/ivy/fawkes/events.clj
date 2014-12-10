@@ -1,7 +1,10 @@
 ;; -*- Mode: Clojure; eval: (hs-hide-all) -*-
 
 (ns ivy.fawkes.events
-  (:require [cljminecraft.events :as events])
+  
+  (:require [cljminecraft.events :as events]
+            [ivy.fawkes.blockloader :as blocker])
+  
   (:import [org.bukkit Material]
            [org.bukkit.entity Player]
            [org.bukkit.block Chest]
@@ -19,11 +22,10 @@
   (.sendMessage (.getPlayer event) message))
 
 (defn on-player-interact [event]
-  (.info (.getLogger @fawkes) "Event fired.")
   (let [player (.getPlayer event)
         block (.getClickedBlock event)
         in-hand (.getItem event)]
-    (when in-hand
+    (when (and in-hand block)
       (when (and (=
                   (.equals (.getType block) Material/CHEST)
                   (.equals (.getType in-hand) Material/STICK)))
@@ -36,17 +38,19 @@
                 (if (> (.size metadata) 0)
                   (.sendMessage player (join " " ["Metadata:" (.value (.get metadata 0))]))
                   (.sendMessage player "No metadata!"))))
-
             
             (when (= lore "regular")
+              (blocker/save-block block "ivy.loot" "regular")
               (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "regular"))
               (.sendMessage player "Loot type set."))
             
             (when (= lore "large")
+              (blocker/save-block block "ivy.loot" "large")
               (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "large"))
               (.sendMessage player "Loot type set."))
             
             (when (= lore "murca")
+              (blocker/save-block block "ivy.loot" "murca")
               (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "murca"))
               (.sendMessage player "Loot type set."))))))))
 
