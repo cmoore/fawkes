@@ -1,6 +1,7 @@
 name: fawkes
 main: ivy.fawkes.Main
 version: 0.0.9
+depend: ["WorldGuard", "WorldEdit", "BetonQuest"]
 commands:
   fks:
     description: 'Testing a clojure command.'
