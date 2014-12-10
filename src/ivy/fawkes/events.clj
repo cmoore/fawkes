@@ -1,3 +1,4 @@
+;; -*- Mode: Clojure; eval: (hs-hide-all) -*-
 
 (ns ivy.fawkes.events
   (:require [cljminecraft.events :as events])
@@ -12,6 +13,7 @@
   (:use [clojure.string :only [join]]))
 
 (defonce ^:dynamic fawkes (atom nil))
+
 
 (defn say-user [event message]
   (.sendMessage (.getPlayer event) message))
@@ -28,23 +30,25 @@
         
         (when (.getLore (.getItemMeta in-hand))
           (let [lore (.get (.getLore (.getItemMeta in-hand)) 0)]
+            
             (when (= lore "view")
-              (say-user event "View stick!"))
+              (let [metadata (.getMetadata (.getState block) "ivy.loot")]
+                (if (> (.size metadata) 0)
+                  (.sendMessage player (join " " ["Metadata:" (.value (.get metadata 0))]))
+                  (.sendMessage player "No metadata!"))))
+
+            
             (when (= lore "regular")
-              (say-user event "Regular loot"))
+              (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "regular"))
+              (.sendMessage player "Loot type set."))
+            
             (when (= lore "large")
-              (say-user event "Large loot"))
+              (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "large"))
+              (.sendMessage player "Loot type set."))
+            
             (when (= lore "murca")
-              (say-user event "Murca loot"))))))))
-
-(defn mark-chest-regular [instance ^Chest chest]
-  (.setMetaData chest "ivy.loot" (.new FixedMetadataValue instance "regular")))
-
-(defn mark-chest-large [instance ^Chest chest]
-  (.setMetaData chest "ivy.loot" (.new FixedMetadataValue instance "large")))
-
-(defn mark-chest-murca [instance ^Chest chest]
-  (.setMetaData chest "ivy.loot" (.new FixedMetadataValue instance "murca")))
+              (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "murca"))
+              (.sendMessage player "Loot type set."))))))))
 
 (defn events []
   [(events/event "player.player-interact" #'on-player-interact)])
@@ -53,14 +57,3 @@
   (reset! fawkes plugin)
   (.info (.getLogger @fawkes) "Loading events.")
   (events/register-eventlist @fawkes (events)))
-
-(defn make-sticks [^Player player]
-  (let [stick (.new ItemStack Material/STICK 1)
-        meta (.getItemMeta stick)
-        lore (.new java.util.ArrayList)]
-    (.add lore "regular")
-    (.setLore meta lore)
-    (.setDisplayName meta "Stick of Loots.")
-    (.setItemMeta stick meta)
-
-    (.. player getInventory addItem stick)))
