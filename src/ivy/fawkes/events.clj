@@ -5,7 +5,8 @@
   (:require [cljminecraft.events :as events]
             [ivy.fawkes.blockloader :as blocker]
             [monger.core :as mg]
-            [monger.collection :as mc])
+            [monger.collection :as mc]
+            [clojure.pprint :as pp])
   
   (:import [org.bukkit Material Bukkit]
            [org.bukkit.entity Entity EntityType Projectile Player Monster]
@@ -27,6 +28,9 @@
   (:use [clojure.string :only [join]]))
 
 (defonce ^:dynamic fawkes (atom nil))
+
+(defn parse-int [s]
+  (Integer. (re-find #"\d+" s)))
 
 (defn get-worldguard []
   (let [plugin (.getPlugin (.getPluginManager (Bukkit/getServer)) "WorldGuard")]
@@ -79,12 +83,17 @@
               (.sendMessage player "Loot type set."))))))))
 
 (defn find-mob-level [^Entity entity]
-  (cond (instance? Projectile entity) (when (instance? Player (.getShooter entity))
+  ;(pp/pprint (supers (class entity)))
+
+  (cond (.hasMetadata entity "NPC") 5
+        (instance? Projectile entity) (when (instance? Player (.getShooter entity))
                                         (find-mob-level (.getShooter entity)))
-        (instance? Player entity) (.getLevel entity)
-        :else (let [level-value (.getMetaData entity "ivy.level")]
-                (cond (.isEmpty level-value) 1
-                      :else (.get level-value 0)))))
+        (instance? Monster entity) (let [level (.getMetadata entity "ivy.level")]
+                                     (if (.isEmpty level)
+                                       1
+                                       (.. level (get 0) (asInt))))
+        (instance? Player entity) (or (.getLevel entity) 1)
+        :else 1))
 
 (defn on-entity-damage [^EntityDamageByEntityEvent event]
   (when (instance? EntityDamageByEntityEvent event)
@@ -94,8 +103,10 @@
           final-damage (.getFinalDamage event)
           attacker-level (find-mob-level attacker)
           defender-level (find-mob-level defender)
-          level-difference (- defender-level attacker-level)
-          new-damage (+ final-damage (* level-difference 0.5))]
+          level-difference (- attacker-level defender-level)
+          t-new-damage (+ final-damage (* level-difference 0.5))
+          new-damage (cond (< t-new-damage 0) 0
+                           :else t-new-damage)]
       (.info (.getLogger @fawkes) (format "%s (%s) HIT %s (%s) for %s/%s -> %s"
                                           attacker attacker-level
                                           defender defender-level
@@ -110,8 +121,7 @@
           region (region-for-entity entity)
           conn (mg/connect)
           db (mg/get-db conn "fawkes")
-          docs (mc/find-maps db "range" { :region region})
-          parse-int (fn [s] (Integer. (re-find #"\d+" s)))]
+          docs (mc/find-maps db "range" { :region region})]
       (cond (first docs) (let [range-doc (first docs)
                                min-level (parse-int (get range-doc :min))
                                max-level (parse-int (get range-doc :max))
