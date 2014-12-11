@@ -4,8 +4,7 @@
 
 (ns ivy.fawkes.core
   
-  (:require [cljminecraft.logging :as log]
-            [ivy.fawkes.events :as handlers]
+  (:require [ivy.fawkes.events :as handlers]
             [ivy.fawkes.commands :as commands])
   
   (:gen-class :name ivy.fawkes.Main

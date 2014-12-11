@@ -3,7 +3,7 @@
   :dependencies [[clj-stacktrace "0.2.7"]
                  [cljminecraft "1.8-R0.1-SNAPSHOT"]
                  
-                 [org.clojure/clojure "1.7.0-master-SNAPSHOT"]
+                 [org.clojure/clojure "1.6.0-ivy"]
                  [org.bukkit/bukkit "1.8-R0.1-SNAPSHOT"]
                  [pl.betoncraft/betonquest "1.4-dev"]
                  [com.sk89q/worldedit "6.0-SNAPSHOT"]

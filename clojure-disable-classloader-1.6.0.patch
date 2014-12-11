@@ -1,0 +1,13 @@
+diff --git a/src/jvm/clojure/lang/RT.java b/src/jvm/clojure/lang/RT.java
+index c72eef3..39bf656 100644
+--- a/src/jvm/clojure/lang/RT.java
++++ b/src/jvm/clojure/lang/RT.java
+@@ -202,7 +202,7 @@ static Keyword FILE_KEY = Keyword.intern(null, "file");
+ static Keyword DECLARED_KEY = Keyword.intern(null, "declared");
+ static Keyword DOC_KEY = Keyword.intern(null, "doc");
+ final static public Var USE_CONTEXT_CLASSLOADER =
+-		Var.intern(CLOJURE_NS, Symbol.intern("*use-context-classloader*"), T).setDynamic();
++		Var.intern(CLOJURE_NS, Symbol.intern("*use-context-classloader*"), F).setDynamic();
+ //boolean
+ static final public Var UNCHECKED_MATH = Var.intern(Namespace.findOrCreate(Symbol.intern("clojure.core")),
+                                                    Symbol.intern("*unchecked-math*"), Boolean.FALSE).setDynamic();
