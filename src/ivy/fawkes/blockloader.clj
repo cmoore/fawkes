@@ -62,8 +62,7 @@
     ; It doesn't matter if it's there.
     ; we almost certainly want to remove it.
     (drop-block block)
-    (mc/insert db "metadata" {
-                              :block_x bx
+    (mc/insert db "metadata" {:block_x bx
                               :block_y by
                               :block_z bz
                               :x x
@@ -72,4 +71,3 @@
                               :world world
                               :metaname metaname
                               :metavalue metavalue})))
-

@@ -3,6 +3,10 @@ main: ivy.fawkes.Main
 version: 0.0.9
 depend: ["WorldGuard", "WorldEdit", "BetonQuest"]
 commands:
+  frange:
+    description: 'Set the level range of a WorldEdit zone.'
+    usage: '/frange <min> <max>'
+    permissions: fawkes.fks
   fks:
     description: 'Testing a clojure command.'
     usage: '/fks reloot'

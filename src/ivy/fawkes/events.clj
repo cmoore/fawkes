@@ -3,10 +3,12 @@
 (ns ivy.fawkes.events
   
   (:require [cljminecraft.events :as events]
-            [ivy.fawkes.blockloader :as blocker])
+            [ivy.fawkes.blockloader :as blocker]
+            [monger.core :as mg]
+            [monger.collection :as mc])
   
   (:import [org.bukkit Material Bukkit]
-           [org.bukkit.entity Entity EntityType Projectile Player]
+           [org.bukkit.entity Entity EntityType Projectile Player Monster]
            [org.bukkit.block Chest]
            [org.bukkit.inventory ItemStack]
            [org.bukkit.metadata FixedMetadataValue]
@@ -102,11 +104,26 @@
       (.setDamage event new-damage))))
 
 (defn on-entity-spawn [event]
-  (when (instance? CreatureSpawnEvent event)
+  (when (and (instance? CreatureSpawnEvent event)
+             (instance? Monster (.getEntity event)))
     (let [entity (.getEntity event)
-          region (region-for-entity entity)]
-      
-      (.info (.getLogger @fawkes) (format "Spawned in region: %s" region)))))
+          region (region-for-entity entity)
+          conn (mg/connect)
+          db (mg/get-db conn "fawkes")
+          docs (mc/find-maps db "range" { :region region})
+          parse-int (fn [s] (Integer. (re-find #"\d+" s)))]
+      (cond (first docs) (let [range-doc (first docs)
+                               min-level (parse-int (get range-doc :min))
+                               max-level (parse-int (get range-doc :max))
+                               level (+ (rand-int (- max-level min-level)) min-level)]
+                           (.setCustomName entity (format "(%s) %s" level (.getType entity)))
+                           (.setCustomNameVisible entity true)
+                           (.setMetadata entity "ivy.level" (FixedMetadataValue. @fawkes level))
+                           (.info (.getLogger @fawkes) (format "Spawned (%s) %s in %s" level (.getType entity) region)))
+            :else (do
+                    (.setCustomName entity (format "(1) %s" (.getType entity)))
+                    (.setCustomNameVisible entity true)
+                    (.setMetadata entity "ivy.level" (FixedMetadataValue. @fawkes "1")))))))
 
 (defn handle-event [f e]
   (if-let [response (f e)]

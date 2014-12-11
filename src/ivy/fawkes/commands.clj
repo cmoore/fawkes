@@ -7,11 +7,18 @@
   (:import [org.bukkit Material]
            [org.bukkit.block Chest BlockState]
            [org.bukkit.entity Player]
-           [org.bukkit.inventory ItemStack])
+           [org.bukkit.inventory ItemStack]
+           [com.mongodb MongoOptions ServerAddress])
   
   (:require [ivy.fawkes.util :as u]
             [ivy.fawkes.blockloader :as bl]
+
+            [monger.core :as mg]
+            [monger.collection :as mc]
             [cljminecraft.commands :as cmd]))
+
+(use '[ivy.fawkes.events :only [region-for-entity]])
+
 
 (defonce ^:dynamic fawkes (atom nil))
 
@@ -19,6 +26,21 @@
 (defn get-random-item []
   (let [values (Material/values)]
     (nth values (rand (count values)))))
+
+(defn handle-frange [sender min max]
+    (let [conn (mg/connect)
+          db (mg/get-db conn "fawkes")
+          collection "range"
+          region (region-for-entity sender)]
+      (cond (= region "global") (do
+                                  (.sendMessage sender "Cowardly refusing to set a range on the global zone.")
+                                  nil)
+            :else (do
+                    (mc/remove db collection {:region region})
+                    (mc/insert db collection {:region region
+                                              :min min
+                                              :max max})
+                    (.sendMessage sender "Mob level range for region set.")))))
 
 (defn handle-fks [sender subcommand]
   (when (.hasPermission sender "fawkes.fks")
@@ -77,8 +99,7 @@
                                 (aset 2 murca-stick)
                                 (aset 3 view-stick))))))))
 
-
-
 (defn start [instance]
   (reset! fawkes instance)
+  (cmd/register-command instance "frange" #'handle-frange :string :string)
   (cmd/register-command instance "fks" #'handle-fks :string))
