@@ -21,15 +21,14 @@
 
 
 (defonce ^:dynamic fawkes (atom nil))
-
+(defonce ^:dynamic mongo (atom nil))
 
 (defn get-random-item []
   (let [values (Material/values)]
     (nth values (rand (count values)))))
 
 (defn handle-frange [sender min max]
-    (let [conn (mg/connect)
-          db (mg/get-db conn "fawkes")
+    (let [db (mg/get-db @mongo "fawkes")
           collection "range"
           region (region-for-entity sender)]
       (cond (= region "global") (do
@@ -99,7 +98,9 @@
                                 (aset 2 murca-stick)
                                 (aset 3 view-stick))))))))
 
-(defn start [instance]
+(defn start [instance connection]
   (reset! fawkes instance)
+  (reset! mongo connection)
+  
   (cmd/register-command instance "frange" #'handle-frange :string :string)
   (cmd/register-command instance "fks" #'handle-fks :string))

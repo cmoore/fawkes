@@ -28,6 +28,7 @@
   (:use [clojure.string :only [join]]))
 
 (defonce ^:dynamic fawkes (atom nil))
+(defonce ^:dynamic mongo (atom nil))
 
 (defn parse-int [s]
   (Integer. (re-find #"\d+" s)))
@@ -99,7 +100,7 @@
   (when (instance? EntityDamageByEntityEvent event)
     (let [attacker (.getDamager event)
           defender (.getEntity event)
-          damage (.getDamage event)
+          damage (.getDamage event) ; anelson5@me.com
           final-damage (.getFinalDamage event)
           attacker-level (find-mob-level attacker)
           defender-level (find-mob-level defender)
@@ -119,8 +120,7 @@
              (instance? Monster (.getEntity event)))
     (let [entity (.getEntity event)
           region (region-for-entity entity)
-          conn (mg/connect)
-          db (mg/get-db conn "fawkes")
+          db (mg/get-db @mongo "fawkes")
           docs (mc/find-maps db "range" { :region region})]
       (cond (first docs) (let [range-doc (first docs)
                                min-level (parse-int (get range-doc :min))
@@ -133,7 +133,8 @@
             :else (do
                     (.setCustomName entity (format "(1) %s" (.getType entity)))
                     (.setCustomNameVisible entity true)
-                    (.setMetadata entity "ivy.level" (FixedMetadataValue. @fawkes "1")))))))
+                    (.setMetadata entity "ivy.level" (FixedMetadataValue. @fawkes "1"))
+                    (.info (.getLogger @fawkes) (format "Spawned (1) %s in global." (.getType entity))))))))
 
 (defn handle-event [f e]
   (if-let [response (f e)]
@@ -151,8 +152,10 @@
                       (execute [l e] (handle-event func e)))
                     @fawkes)))
 
-(defn start [plugin]
+(defn start [plugin connection]
   (reset! fawkes plugin)
+  (reset! mongo connection)
+  
   (.info (.getLogger @fawkes) "Loading events.")
   (register-event "org.bukkit.event.entity.EntityDamageByEntityEvent" #'on-entity-damage)
   (register-event "org.bukkit.event.entity.CreatureSpawnEvent" #'on-entity-spawn)

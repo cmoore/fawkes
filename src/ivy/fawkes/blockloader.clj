@@ -11,9 +11,12 @@
            [com.mongodb MongoOptions ServerAddress]))
 
 
+(defonce ^:dynamic fawkes (atom nil))
+(defonce ^:dynamic mongo (atom nil))
+
+
 (defn confirm-blocks [player ^World world]
-  (let [conn (mg/connect)
-        db (mg/get-db conn "fawkes")
+  (let [db (mg/get-db @mongo "fawkes")
         coll "metadata"
         docs (mc/find-maps db coll { :world (.getName world)})]
     (.sendMessage player (format "Found %d records." (count docs)))
@@ -32,8 +35,7 @@
 
 (defn drop-block [^Block block]
   (let [location (.getLocation block)
-        conn (mg/connect)
-        db (mg/get-db conn "fawkes")
+        db (mg/get-db @mongo "fawkes")
         collection "metadata"]
     (mc/remove db collection {:block_x (.getBlockX location)
                               :block_y (.getBlockY location)
@@ -41,8 +43,7 @@
 
 (defn find-block [^Block block]
   (let [location (.getLocation block)
-        conn (mg/connect)
-        db (mg/get-db conn "fawkes")
+        db (mg/get-db @mongo "fawkes")
         collection "metadata"]
     (mc/find-maps db collection {:block_x (.getBlockX location)
                                  :block_y (.getBlockY location)
@@ -57,8 +58,7 @@
         y (.getY location)
         z (.getZ location)
         world (.getName (.getWorld location))
-        conn (mg/connect)
-        db (mg/get-db conn "fawkes")]
+        db (mg/get-db @mongo "fawkes")]
     ; It doesn't matter if it's there.
     ; we almost certainly want to remove it.
     (drop-block block)
@@ -71,3 +71,7 @@
                               :world world
                               :metaname metaname
                               :metavalue metavalue})))
+
+(defn start [instance connection]
+  (reset! fawkes instance)
+  (reset! mongo connection))
