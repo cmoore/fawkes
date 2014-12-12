@@ -20,18 +20,20 @@
         coll "metadata"
         docs (mc/find-maps db coll { :world (.getName world)})]
     (.sendMessage player (format "Found %d records." (count docs)))
-    (doall
-     (map (fn [record]
-            (let [block_x (get record :block_x)
-                  block_y (get record :block_y)
-                  block_z (get record :block_z)
-                  metaname (get record :metaname)
-                  metavalue (get record :metavalue)]
-              (let [block (.getBlockAt world block_x block_y block_z)]
-                ;(util/log fawkes (format "Block type is: %s" (.toString (.getType block))))
-                (when (.equals (.getType block) Material/CHEST)
-                  (.sendMessage player "Block is block.")))))
-          docs))))
+    (let [real-blocks (doall
+                       (filter (fn [record]
+                                 (let [block_x (get record :block_x)
+                                       block_y (get record :block_y)
+                                       block_z (get record :block_z)
+                                       metaname (get record :metaname)
+                                       metavalue (get record :metavalue)]
+                                   (let [block (.getBlockAt world block_x block_y block_z)]
+                                        ;(util/log fawkes (format "Block type is: %s" (.toString (.getType block))))
+                                     
+                                     (.equals (.getType block) Material/CHEST))))
+                               docs))]
+      (.sendMessage player (format "Found %d real chests." (count real-blocks))))))
+
 
 (defn drop-block [^Block block]
   (let [location (.getLocation block)
