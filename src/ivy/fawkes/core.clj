@@ -17,6 +17,9 @@
   (commands/start plugin)
   (blockloader/start plugin)
 
-  (.registerEvents (BetonQuest/getInstance) "ivy.testevent" ivy.fawkes.beton.TestEvent))
+  (.saveDefaultConfig plugin)
+  
+  (.registerEvents (BetonQuest/getInstance) "ivy.testevent" ivy.fawkes.beton.TestEvent)
+  (.registerEvents (BetonQuest/getInstance) "ivy.bronzereward" ivy.fawkes.beton.BronzeReward))
 
 (defn -onDisable [this])

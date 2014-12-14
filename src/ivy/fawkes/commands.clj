@@ -3,6 +3,7 @@
 (ns ivy.fawkes.commands
   (:refer-clojure :exclude [update])
   
+  
   (:use [clojure.string :only (join)])
 
   (:import [org.bukkit Material]
@@ -10,7 +11,8 @@
            [org.bukkit.entity Player]
            [org.bukkit.inventory ItemStack])
   
-  (:require [ivy.fawkes.util :as u]
+  (:require [clojure.core :as core]
+            [ivy.fawkes.util :as u]
             [cljminecraft.commands :as cmd]))
 
 (use '[ivy.fawkes.events :only [region-for-entity]])
