@@ -1,14 +1,14 @@
 ;; -*- Mode: Clojure; eval: (hs-hide-all) -*-
 
 (ns ivy.fawkes.blockloader
-
+  (:refer-clojure :exclude [update])
+  
   (:require [ivy.fawkes.util :as util]
             [monger.core :as mg]
             [monger.collection :as mc])
   
   (:import [org.bukkit World Material]
-           [org.bukkit.block Block]
-           [com.mongodb MongoOptions ServerAddress]))
+           [org.bukkit.block Block]))
 
 
 (defonce ^:dynamic fawkes (atom nil))
@@ -33,7 +33,6 @@
                                      (.equals (.getType block) Material/CHEST))))
                                docs))]
       (.sendMessage player (format "Found %d real chests." (count real-blocks))))))
-
 
 (defn drop-block [^Block block]
   (let [location (.getLocation block)
@@ -74,6 +73,6 @@
                               :metaname metaname
                               :metavalue metavalue})))
 
-(defn start [instance connection]
+(defn start [instance]
   (reset! fawkes instance)
-  (reset! mongo connection))
+  (reset! mongo (mg/connect)))

@@ -3,26 +3,20 @@
 ;; TODO: Guards need to be marked to give no xp.
 
 (ns ivy.fawkes.core
+  (:import [pl.betoncraft.betonquest BetonQuest])
   
   (:require [ivy.fawkes.events :as events]
             [ivy.fawkes.commands :as commands]
-            [ivy.fawkes.blockloader :as blockloader]
-            [monger.core :as mg])
+            [ivy.fawkes.blockloader :as blockloader])
   
   (:gen-class :name ivy.fawkes.Main
               :extends org.bukkit.plugin.java.JavaPlugin))
 
-(defonce ^:dynamic fawkes (atom nil))
-(defonce ^:dynamic mongo (atom nil))
-
 (defn -onEnable [plugin]
-  (let [connection (mg/connect)]
-    
-    (events/start plugin connection)
-    (commands/start plugin connection)
-    (blockloader/start plugin connection)
-    
-    (reset! fawkes plugin)
-    (reset! mongo connection)))
+  (events/start plugin)
+  (commands/start plugin)
+  (blockloader/start plugin)
+
+  (.registerEvents (BetonQuest/getInstance) "ivy.testevent" ivy.fawkes.beton.TestEvent))
 
 (defn -onDisable [this])

@@ -3,6 +3,10 @@ main: ivy.fawkes.Main
 version: 0.0.9
 depend: ["WorldGuard", "WorldEdit", "BetonQuest"]
 commands:
+  fkey:
+    description: 'Give a player a crate key.'
+    usage: '/fkey player amount'
+    permissions: fawkes.fkey
   frange:
     description: 'Set the level range of a WorldEdit zone.'
     usage: '/frange <min> <max>'

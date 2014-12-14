@@ -4,6 +4,9 @@
   (:import [org.bukkit.entity EntityType Projectile Entity Player]
            [org.bukkit Bukkit World Material]))
 
+(defn parse-int [s]
+  (Integer. (re-find #"\d+" s)))
+
 (defn olog [message]
   (let [fawkes (.getPlugin (Bukkit/getPluginManager) "Fawkes")]
     (.info (.getLogger fawkes) message)))

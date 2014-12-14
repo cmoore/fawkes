@@ -3,14 +3,13 @@
 (ns ivy.fawkes.events
   
   (:require [cljminecraft.events :as events]
-            [ivy.fawkes.blockloader :as blocker]
-            [monger.core :as mg]
-            [monger.collection :as mc]
-            [clojure.pprint :as pp])
+            [cljminecraft.logging :as log]
+            [clojure.pprint :as pp]
+            [ivy.fawkes.blockloader :as blocker])
   
-  (:import [org.bukkit Material Bukkit]
+  (:import [org.bukkit Material Bukkit ChatColor]
            [org.bukkit.entity Entity EntityType Projectile Player Monster]
-           [org.bukkit.block Chest]
+           [org.bukkit.block Chest Biome]
            [org.bukkit.inventory ItemStack]
            [org.bukkit.metadata FixedMetadataValue]
            [org.bukkit.event EventPriority]
@@ -28,10 +27,6 @@
   (:use [clojure.string :only [join]]))
 
 (defonce ^:dynamic fawkes (atom nil))
-(defonce ^:dynamic mongo (atom nil))
-
-(defn parse-int [s]
-  (Integer. (re-find #"\d+" s)))
 
 (defn get-worldguard []
   (let [plugin (.getPlugin (.getPluginManager (Bukkit/getServer)) "WorldGuard")]
@@ -86,13 +81,14 @@
 (defn find-mob-level [^Entity entity]
   ;(pp/pprint (supers (class entity)))
 
-  (cond (.hasMetadata entity "NPC") 5
+  (cond (.hasMetadata entity "NPC") 50
         (instance? Projectile entity) (when (instance? Player (.getShooter entity))
                                         (find-mob-level (.getShooter entity)))
         (instance? Monster entity) (let [level (.getMetadata entity "ivy.level")]
                                      (if (.isEmpty level)
                                        1
                                        (.. level (get 0) (asInt))))
+        
         (instance? Player entity) (or (.getLevel entity) 1)
         :else 1))
 
@@ -100,7 +96,7 @@
   (when (instance? EntityDamageByEntityEvent event)
     (let [attacker (.getDamager event)
           defender (.getEntity event)
-          damage (.getDamage event) ; anelson5@me.com
+          damage (.getDamage event)
           final-damage (.getFinalDamage event)
           attacker-level (find-mob-level attacker)
           defender-level (find-mob-level defender)
@@ -115,26 +111,45 @@
                                           new-damage))
       (.setDamage event new-damage))))
 
+(defn rand-range [low high]
+  (+ (rand-int (- (+ 1 high) low)) low))
+
+(defn spawn-creature [level entity biome]
+  (.setCustomName entity (format "§e(%s) %s" level (.getType entity)))
+  (.setCustomNameVisible entity true)
+  (.setMetadata entity "ivy.level" (FixedMetadataValue. @fawkes level))
+  ;(log/warn "Spawned (%s) %s%s%s in global zone, biome: %s%s%s." level ChatColor/RED (.getType entity) ChatColor/RESET ChatColor/RED biome ChatColor/RESET)
+  )
+
 (defn on-entity-spawn [event]
-  (when (and (instance? CreatureSpawnEvent event)
-             (instance? Monster (.getEntity event)))
-    (let [entity (.getEntity event)
-          region (region-for-entity entity)
-          db (mg/get-db @mongo "fawkes")
-          docs (mc/find-maps db "range" { :region region})]
-      (cond (first docs) (let [range-doc (first docs)
-                               min-level (parse-int (get range-doc :min))
-                               max-level (parse-int (get range-doc :max))
-                               level (+ (rand-int (- max-level min-level)) min-level)]
-                           (.setCustomName entity (format "(%s) %s" level (.getType entity)))
-                           (.setCustomNameVisible entity true)
-                           (.setMetadata entity "ivy.level" (FixedMetadataValue. @fawkes level))
-                           (.info (.getLogger @fawkes) (format "Spawned (%s) %s in %s" level (.getType entity) region)))
+  (let [entity (.getEntity event)
+        location (.getLocation entity)
+        world (.getWorld location)
+        loc-x (.getBlockX location)
+        loc-y (.getBlockY location)
+        biome (.getBiome world loc-x loc-y)
+        high-y (.getHighestBlockYAt world location)]
+    (do
+      (when (= (.getType (.getEntity event)) EntityType/RABBIT)
+        (spawn-creature 50 (.getEntity event) biome))
+      (when (and (instance? CreatureSpawnEvent event)
+                 (instance? Monster (.getEntity event)))
+        (let [location (.getLocation (.getEntity event))
+              world (.getWorld location)
+              loc-x (.getBlockX location)
+              loc-y (.getBlockY location)
+              biome (.getBiome world loc-x loc-y)
+              entity (.getEntity event)]
+          (cond
+            
+            (= biome Biome/FOREST) (spawn-creature (rand-range 4 8) entity biome)
+            (= biome Biome/JUNGLE) (spawn-creature (rand-range 3 5) entity biome)
+            (= biome Biome/JUNGLE_HILLS) (spawn-creature (rand-range 2 4) entity biome)
+            (= biome Biome/PLAINS) (spawn-creature (rand-range 8 15) entity biome)
+            
             :else (do
-                    (.setCustomName entity (format "(1) %s" (.getType entity)))
-                    (.setCustomNameVisible entity true)
-                    (.setMetadata entity "ivy.level" (FixedMetadataValue. @fawkes "1"))
-                    (.info (.getLogger @fawkes) (format "Spawned (1) %s in global." (.getType entity))))))))
+                    (log/warn "Request for biome %s%s%s fell through." ChatColor/RED biome ChatColor/RESET)
+                    (spawn-creature 1 entity biome))))))))
 
 (defn handle-event [f e]
   (if-let [response (f e)]
@@ -152,9 +167,8 @@
                       (execute [l e] (handle-event func e)))
                     @fawkes)))
 
-(defn start [plugin connection]
+(defn start [plugin]
   (reset! fawkes plugin)
-  (reset! mongo connection)
   
   (.info (.getLogger @fawkes) "Loading events.")
   (register-event "org.bukkit.event.entity.EntityDamageByEntityEvent" #'on-entity-damage)

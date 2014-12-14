@@ -2,7 +2,7 @@
   :description "This is a description"
   :dependencies [[clj-stacktrace "0.2.7"]
                  
-                 [org.clojure/clojure "1.6.0-ivy"]
+                 [org.clojure/clojure "1.7.0-ivy"]
                  [org.bukkit/bukkit "1.8-R0.1-SNAPSHOT"]
                  
                  [pl.betoncraft/betonquest "1.4-dev"]
@@ -23,7 +23,10 @@
   
   :repositories [["me" "http://192.168.0.210/~cmoore/repository/"]
                  ["citizens" "http://repo.citizensnpcs.co/"]]
+  
   :filespecs [{:type :path :path "src/plugin.yml"}]
+  
   :plugins [[lein-auto "0.1.1"]
             [lein-autoreload "0.1.0"]]
+  
   :aot :all)

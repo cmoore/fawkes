@@ -1,55 +1,53 @@
 ;; -*- Mode: Clojure; eval: (hs-hide-all) -*-
 
 (ns ivy.fawkes.commands
-
+  (:refer-clojure :exclude [update])
+  
   (:use [clojure.string :only (join)])
 
   (:import [org.bukkit Material]
            [org.bukkit.block Chest BlockState]
            [org.bukkit.entity Player]
-           [org.bukkit.inventory ItemStack]
-           [com.mongodb MongoOptions ServerAddress])
+           [org.bukkit.inventory ItemStack])
   
   (:require [ivy.fawkes.util :as u]
-            [ivy.fawkes.blockloader :as bl]
-
-            [monger.core :as mg]
-            [monger.collection :as mc]
             [cljminecraft.commands :as cmd]))
 
 (use '[ivy.fawkes.events :only [region-for-entity]])
 
-
 (defonce ^:dynamic fawkes (atom nil))
-(defonce ^:dynamic mongo (atom nil))
 
 (defn get-random-item []
   (let [values (Material/values)]
     (nth values (rand (count values)))))
 
-(defn handle-frange [sender min max]
-    (let [db (mg/get-db @mongo "fawkes")
-          collection "range"
-          region (region-for-entity sender)]
-      (cond (= region "global") (do
-                                  (.sendMessage sender "Cowardly refusing to set a range on the global zone.")
-                                  nil)
-            :else (do
-                    (mc/remove db collection {:region region})
-                    (mc/insert db collection {:region region
-                                              :min min
-                                              :max max})
-                    (.sendMessage sender "Mob level range for region set.")))))
+; /fkey <name> <amount>
+(defn handle-fkey [sender name amount]
+  (let [new-key (ItemStack. Material/TRIPWIRE_HOOK (u/parse-int amount))
+        key-meta (.getItemMeta new-key)]
+    (.setLore key-meta ["Bronze Key"])
+    (.setDisplayName key-meta "Bronze Key of Lootey Loots")
+    (.setItemMeta new-key key-meta)
+    (let [the-player (first (filter (fn [player]
+                                      (.info (.getLogger @fawkes) (format "Player: %s" (.getName player)))
+                                      (.equals name (.getName player)))
+                                    (.getPlayers (.getWorld sender))))]
+      (if the-player
+        (do
+          (.addItem (.getInventory the-player) (doto (make-array ItemStack 1)
+                                                 (aset 0 new-key)))
+          (.sendMessage sender "Done."))
+        (.sendMessage sender "I can't find that player.")))))
 
 (defn handle-fks [sender subcommand]
   (when (.hasPermission sender "fawkes.fks")
-    
+
     (when (= subcommand "test")
       (.sendMessage sender "Looking good.")
       true)
     
-    (when (= subcommand "chest-scan")
-      (bl/confirm-blocks sender (.getWorld sender)))
+    ;; (when (= subcommand "chest-scan")
+    ;;   (bl/confirm-blocks sender (.getWorld sender)))
     
     (when (= subcommand "reloot")
       (doall (map (fn [chunk]
@@ -98,9 +96,8 @@
                                 (aset 2 murca-stick)
                                 (aset 3 view-stick))))))))
 
-(defn start [instance connection]
+(defn start [instance]
   (reset! fawkes instance)
-  (reset! mongo connection)
   
-  (cmd/register-command instance "frange" #'handle-frange :string :string)
+  (cmd/register-command instance "fkey" #'handle-fkey :string :string)
   (cmd/register-command instance "fks" #'handle-fks :string))
