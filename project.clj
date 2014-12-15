@@ -9,6 +9,9 @@
                  [com.sk89q/worldedit "6.0-SNAPSHOT"]
                  [com.sk89q/worldguard "6.0.0-SNAPSHOT"]
                  
+                 [com.earth2me/essentials "2.x-SNAPSHOT"]
+                 [com.vexsoftware/votifier "1.1"]
+                 
                  [cljminecraft "1.8-R0.1-SNAPSHOT"]
                  [org.reflections/reflections "0.9.9-RC1"]
                  [com.novemberain/monger "2.0.0"]

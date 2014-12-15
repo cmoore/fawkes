@@ -3,8 +3,7 @@
 (ns ivy.fawkes.commands
   (:refer-clojure :exclude [update])
   
-  
-  (:use [clojure.string :only (join)])
+   (:use [clojure.string :only (join)])
 
   (:import [org.bukkit Material]
            [org.bukkit.block Chest BlockState]
@@ -23,21 +22,28 @@
   (let [values (Material/values)]
     (nth values (rand (count values)))))
 
-; /fkey <name> <amount>
-(defn handle-fkey [sender name amount]
+(defn make-key [name lore amount]
   (let [new-key (ItemStack. Material/TRIPWIRE_HOOK (u/parse-int amount))
         key-meta (.getItemMeta new-key)]
-    (.setLore key-meta ["Bronze Key"])
-    (.setDisplayName key-meta "Bronze Key of Lootey Loots")
+    (.setLore key-meta [lore])
+    (.setDisplayName key-meta name)
     (.setItemMeta new-key key-meta)
+    new-key))
+
+; /fkey <name> <amount>
+(defn handle-fkey [sender type name amount]
+  (let [new-key (cond (= type "bronze")  (make-key "Bronze Key of Lootey Loots" "Bronze Key" amount)
+                      (= type "silver")  (make-key "Silver Key of Pretty Good Loots" "Silver Key" amount)
+                      (= type "gold")    (make-key "Gold Key of Sweet Loots" "Gold Key" amount)
+                      (= type "godtier") (make-key "God Tier Loot Key" "God Tier Key" amount))]
+    
     (let [the-player (first (filter (fn [player]
                                       (.info (.getLogger @fawkes) (format "Player: %s" (.getName player)))
                                       (.equals name (.getName player)))
                                     (.getPlayers (.getWorld sender))))]
       (if the-player
         (do
-          (.addItem (.getInventory the-player) (doto (make-array ItemStack 1)
-                                                 (aset 0 new-key)))
+          (u/add-to-inventory the-player new-key)
           (.sendMessage sender "Done."))
         (.sendMessage sender "I can't find that player.")))))
 
@@ -101,5 +107,5 @@
 (defn start [instance]
   (reset! fawkes instance)
   
-  (cmd/register-command instance "fkey" #'handle-fkey :string :string)
+  (cmd/register-command instance "fkey" #'handle-fkey :string :string :string)
   (cmd/register-command instance "fks" #'handle-fks :string))

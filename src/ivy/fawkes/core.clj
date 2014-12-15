@@ -18,7 +18,8 @@
   (blockloader/start plugin)
 
   (.saveDefaultConfig plugin)
-  
+
+  (.registerEvents (BetonQuest/getInstance) "ivy.resetxp" ivy.fawkes.beton.ResetXP)
   (.registerEvents (BetonQuest/getInstance) "ivy.testevent" ivy.fawkes.beton.TestEvent)
   (.registerEvents (BetonQuest/getInstance) "ivy.bronzereward" ivy.fawkes.beton.BronzeReward))
 
