@@ -7,7 +7,12 @@
   
   (:require [ivy.fawkes.events :as events]
             [ivy.fawkes.commands :as commands]
-            [ivy.fawkes.blockloader :as blockloader])
+            [ivy.fawkes.blockloader :as blockloader]
+            [ivy.fawkes.ext.votifier :as votifier]
+
+            [ivy.fawkes.ext.beton.resetxp]
+            [ivy.fawkes.ext.beton.bronze]
+            [ivy.fawkes.ext.beton.testevent])
   
   (:gen-class :name ivy.fawkes.Main
               :extends org.bukkit.plugin.java.JavaPlugin))
@@ -16,11 +21,12 @@
   (events/start plugin)
   (commands/start plugin)
   (blockloader/start plugin)
-
+  (votifier/start plugin)
+  
   (.saveDefaultConfig plugin)
 
-  (.registerEvents (BetonQuest/getInstance) "ivy.resetxp" ivy.fawkes.beton.ResetXP)
-  (.registerEvents (BetonQuest/getInstance) "ivy.testevent" ivy.fawkes.beton.TestEvent)
-  (.registerEvents (BetonQuest/getInstance) "ivy.bronzereward" ivy.fawkes.beton.BronzeReward))
+  (.registerEvents (BetonQuest/getInstance) "ivy.resetxp" ivy.fawkes.ext.beton.ResetXP)
+  (.registerEvents (BetonQuest/getInstance) "ivy.testevent" ivy.fawkes.ext.beton.TestEvent)
+  (.registerEvents (BetonQuest/getInstance) "ivy.bronzereward" ivy.fawkes.ext.beton.BronzeReward))
 
 (defn -onDisable [this])

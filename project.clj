@@ -14,8 +14,10 @@
                  
                  [cljminecraft "1.8-R0.1-SNAPSHOT"]
                  [org.reflections/reflections "0.9.9-RC1"]
-                 [com.novemberain/monger "2.0.0"]
-                 [cheshire "5.3.1"]]
+                 [com.novemberain/monger "2.0.1"]
+                 
+                 [org.clojure/java.jdbc "0.3.5"]
+                 [org.xerial/sqlite-jdbc "3.7.2"]]
   
   :injections [(let [orig (ns-resolve (doto 'clojure.stacktrace require)
                                       'print-cause-trace)

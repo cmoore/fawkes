@@ -1,26 +1,19 @@
 ;; -*- Mode: Clojure; eval: (hs-hide-all) -*-
 
 (ns ivy.fawkes.commands
-  (:refer-clojure :exclude [update])
-  
-   (:use [clojure.string :only (join)])
 
+  (refer-clojure :exclude [update])
+  
   (:import [org.bukkit Material]
            [org.bukkit.block Chest BlockState]
            [org.bukkit.entity Player]
            [org.bukkit.inventory ItemStack])
   
-  (:require [clojure.core :as core]
-            [ivy.fawkes.util :as u]
+  (:require [ivy.fawkes.util :as u]
+            [ivy.fawkes.blockloader :as bl]
             [cljminecraft.commands :as cmd]))
 
-(use '[ivy.fawkes.events :only [region-for-entity]])
-
 (defonce ^:dynamic fawkes (atom nil))
-
-(defn get-random-item []
-  (let [values (Material/values)]
-    (nth values (rand (count values)))))
 
 (defn make-key [name lore amount]
   (let [new-key (ItemStack. Material/TRIPWIRE_HOOK (u/parse-int amount))
@@ -50,13 +43,9 @@
 (defn handle-fks [sender subcommand]
   (when (.hasPermission sender "fawkes.fks")
 
-    (when (= subcommand "test")
-      (.sendMessage sender "Looking good.")
-      true)
-    
-    ;; (when (= subcommand "chest-scan")
-    ;;   (bl/confirm-blocks sender (.getWorld sender)))
-    
+    (when (= subcommand "chest-scan")
+      (bl/confirm-blocks sender (.getWorld sender)))
+
     (when (= subcommand "reloot")
       (doall (map (fn [chunk]
                     (doall (map (fn [blockstate]

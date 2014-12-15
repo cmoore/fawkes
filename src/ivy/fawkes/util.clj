@@ -1,11 +1,10 @@
 ;; -*- Mode: Clojure; eval: (hs-hide-all) -*-
 
 (ns ivy.fawkes.util
-  (:import [com.earth2me.essentials.api Economy]
-           
-           [org.bukkit.inventory ItemStack]
-           [org.bukkit Bukkit World Material]
-           [org.bukkit.entity EntityType Projectile Entity Player]))
+  (:import [org.bukkit Bukkit World Material]
+           [org.bukkit.event EventPriority]
+           [org.bukkit.entity EntityType Projectile Entity Player]
+           [org.bukkit.inventory ItemStack]))
 
 (defn parse-int [s]
   (Integer. (re-find #"\d+" s)))
@@ -40,18 +39,26 @@
         1)
       (.asInt (.get level_values 0)))))
 
-(defn find-all-chests [^World world]
-  (flatten
-   (map (fn [chunk]
-          (map (fn [blockstate]
-                 (when (= (.getType blockstate) Material/CHEST)
-                   blockstate))
-               (.getTileEntities chunk)))
-        (.getLoadedChunks world))))
-
-(defn add-money [name amount]
-  (Economy/add name amount))
-
 (defn give-exp [player amount]
   (.giveExp player amount)
   (.sendMessage player (format "You receive %s experience!" amount)))
+
+(defn handle-event [f e]
+  (if-let [response (f e)]
+    (do
+      (if (:msg response)
+        (.sendMessage e response)))))
+
+(defn register-event [fawkes event-name func]
+  (let [manager (.getPluginManager (Bukkit/getServer))]
+    (.registerEvent manager
+                    (resolve (symbol event-name))
+                    (proxy [org.bukkit.event.Listener] [])
+                    EventPriority/NORMAL
+                    (proxy [org.bukkit.plugin.EventExecutor] []
+                      (execute [l e] (handle-event func e)))
+                    fawkes)))
+
+(defn get-random-item []
+  (let [values (Material/values)]
+    (nth values (rand (count values)))))

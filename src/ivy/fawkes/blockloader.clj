@@ -1,9 +1,9 @@
 ;; -*- Mode: Clojure; eval: (hs-hide-all) -*-
 
 (ns ivy.fawkes.blockloader
-  (:refer-clojure :exclude [update])
   
   (:require [ivy.fawkes.util :as util]
+            
             [monger.core :as mg]
             [monger.collection :as mc])
   
@@ -13,7 +13,6 @@
 
 (defonce ^:dynamic fawkes (atom nil))
 (defonce ^:dynamic mongo (atom nil))
-
 
 (defn confirm-blocks [player ^World world]
   (let [db (mg/get-db @mongo "fawkes")
@@ -28,8 +27,7 @@
                                        metaname (get record :metaname)
                                        metavalue (get record :metavalue)]
                                    (let [block (.getBlockAt world block_x block_y block_z)]
-                                        ;(util/log fawkes (format "Block type is: %s" (.toString (.getType block))))
-                                     
+                                     (util/log fawkes (format "Block type is: %s" (.toString (.getType block))))
                                      (.equals (.getType block) Material/CHEST))))
                                docs))]
       (.sendMessage player (format "Found %d real chests." (count real-blocks))))))

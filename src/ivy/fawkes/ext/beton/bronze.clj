@@ -1,5 +1,5 @@
 
-(ns ivy.fawkes.beton.bronze
+(ns ivy.fawkes.ext.beton.bronze
   (:import [pl.betoncraft.betonquest.core QuestEvent]
            [org.bukkit Bukkit Material]
            [org.bukkit.enchantments Enchantment]
@@ -7,9 +7,10 @@
            [org.bukkit.entity Player]
            [org.bukkit.event Listener])
 
-  (:require [ivy.fawkes.util :as u])
+  (:require [ivy.fawkes.util :as u]
+            [ivy.fawkes.ext.essentials :as ess])
   
-  (:gen-class :name ivy.fawkes.beton.BronzeReward
+  (:gen-class :name ivy.fawkes.ext.beton.BronzeReward
               :init bronzereward
               :extends pl.betoncraft.betonquest.core.QuestEvent
               :implements [org.bukkit.event.Listener]))
@@ -21,7 +22,7 @@
                          money :money
                          money-amount :money-amount}]
   
-  (cond (and money money-amount) (u/add-money (.getName player) money-amount)
+  (cond (and money money-amount) (ess/add-money (.getName player) money-amount)
         item (let [meta (.getItemMeta item)]
                (when (and enchant level)
                  (.addEnchant meta enchant level false))
