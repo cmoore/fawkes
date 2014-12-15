@@ -10,7 +10,7 @@
            [org.bukkit.inventory ItemStack])
   
   (:require [ivy.fawkes.util :as u]
-            [ivy.fawkes.blockloader :as bl]
+            [ivy.fawkes.block :as bl]
             [cljminecraft.commands :as cmd]))
 
 (defonce ^:dynamic fawkes (atom nil))

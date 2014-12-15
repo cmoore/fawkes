@@ -1,18 +1,14 @@
-;; -*- Mode: Clojure; eval: (hs-hide-all) -*-
 
-(ns ivy.fawkes.blockloader
-  
+(ns ivy.fawkes.block
   (:require [ivy.fawkes.util :as util]
-            
             [monger.core :as mg]
             [monger.collection :as mc])
   
   (:import [org.bukkit World Material]
            [org.bukkit.block Block]))
 
-
-(defonce ^:dynamic fawkes (atom nil))
 (defonce ^:dynamic mongo (atom nil))
+(defonce ^:dynamic fawkes (atom nil))
 
 (defn confirm-blocks [player ^World world]
   (let [db (mg/get-db @mongo "fawkes")
@@ -70,6 +66,15 @@
                               :world world
                               :metaname metaname
                               :metavalue metavalue})))
+
+(defn find-all-chests [^World world]
+  (flatten
+   (map (fn [chunk]
+          (map (fn [blockstate]
+                 (when (= (.getType blockstate) Material/CHEST)
+                   blockstate))
+               (.getTileEntities chunk)))
+        (.getLoadedChunks world))))
 
 (defn start [instance]
   (reset! fawkes instance)

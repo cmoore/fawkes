@@ -29,9 +29,6 @@
   :repositories [["me" "http://192.168.0.210/~cmoore/repository/"]
                  ["citizens" "http://repo.citizensnpcs.co/"]]
   
-  :filespecs [{:type :path :path "src/plugin.yml"}
-              {:type :path :path "src/config.yml"}]
-  
   :plugins [[lein-auto "0.1.1"]
             [lein-autoreload "0.1.0"]]
   

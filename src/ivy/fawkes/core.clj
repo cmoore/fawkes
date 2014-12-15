@@ -7,7 +7,7 @@
   
   (:require [ivy.fawkes.events :as events]
             [ivy.fawkes.commands :as commands]
-            [ivy.fawkes.blockloader :as blockloader]
+            [ivy.fawkes.block :as block]
             [ivy.fawkes.ext.votifier :as votifier]
 
             [ivy.fawkes.ext.beton.resetxp]
@@ -20,7 +20,7 @@
 (defn -onEnable [plugin]
   (events/start plugin)
   (commands/start plugin)
-  (blockloader/start plugin)
+  (block/start plugin)
   (votifier/start plugin)
   
   (.saveDefaultConfig plugin)

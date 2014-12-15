@@ -4,7 +4,7 @@
   
   (:require [cljminecraft.logging :as log]
             
-            [ivy.fawkes.blockloader :as blocker]
+            [ivy.fawkes.block :as block]
             [ivy.fawkes.util :as u])
   
   (:import [org.bukkit.block Chest Biome]
@@ -38,17 +38,17 @@
                   (.sendMessage player "No metadata!"))))
             
             (when (= lore "regular")
-              (blocker/save-block block "ivy.loot" "regular")
+              (block/save-block block "ivy.loot" "regular")
               (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "regular"))
               (.sendMessage player "Loot type set."))
             
             (when (= lore "large")
-              (blocker/save-block block "ivy.loot" "large")
+              (block/save-block block "ivy.loot" "large")
               (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "large"))
               (.sendMessage player "Loot type set."))
             
             (when (= lore "murca")
-              (blocker/save-block block "ivy.loot" "murca")
+              (block/save-block block "ivy.loot" "murca")
               (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "murca"))
               (.sendMessage player "Loot type set."))))))))
 
