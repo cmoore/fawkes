@@ -43,22 +43,6 @@
   (.giveExp player amount)
   (.sendMessage player (format "You receive %s experience!" amount)))
 
-(defn handle-event [f e]
-  (if-let [response (f e)]
-    (do
-      (if (:msg response)
-        (.sendMessage e response)))))
-
-(defn register-event [fawkes event-name func]
-  (let [manager (.getPluginManager (Bukkit/getServer))]
-    (.registerEvent manager
-                    (resolve (symbol event-name))
-                    (proxy [org.bukkit.event.Listener] [])
-                    EventPriority/NORMAL
-                    (proxy [org.bukkit.plugin.EventExecutor] []
-                      (execute [l e] (handle-event func e)))
-                    fawkes)))
-
 (defn get-random-item []
   (let [values (Material/values)]
     (nth values (rand (count values)))))

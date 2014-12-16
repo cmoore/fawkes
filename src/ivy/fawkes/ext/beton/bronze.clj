@@ -88,6 +88,8 @@
                 ]]
 
     (dotimes [x 4]
-      (u/add-to-inventory player (make-item player (rand-nth bronze)))))
+      (let [item (make-item player (rand-nth bronze))]
+        (when item
+          (u/add-to-inventory player item)))))
   
   (.info (Bukkit/getLogger) (format "Done!")))

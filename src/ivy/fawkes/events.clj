@@ -2,8 +2,7 @@
 
 (ns ivy.fawkes.events
   
-  (:require [cljminecraft.logging :as log]
-            
+  (:require [ivy.fawkes.bukkit.event :as event]
             [ivy.fawkes.block :as block]
             [ivy.fawkes.util :as u])
   
@@ -18,39 +17,6 @@
            [org.bukkit.inventory ItemStack]))
 
 (defonce ^:dynamic fawkes (atom nil))
-
-(defn on-player-interact [^PlayerInteractEvent event]
-  (let [player (.getPlayer event)
-        block (.getClickedBlock event)
-        in-hand (.getItem event)]
-    (when (and in-hand block)
-      (when (and (=
-                  (.equals (.getType block) Material/CHEST)
-                  (.equals (.getType in-hand) Material/STICK)))
-        
-        (when (.getLore (.getItemMeta in-hand))
-          (let [lore (.get (.getLore (.getItemMeta in-hand)) 0)]
-            
-            (when (= lore "view")
-              (let [metadata (.getMetadata (.getState block) "ivy.loot")]
-                (if (> (.size metadata) 0)
-                  (.sendMessage player (format "Metadata: %s" (.value (.get metadata 0))))
-                  (.sendMessage player "No metadata!"))))
-            
-            (when (= lore "regular")
-              (block/save-block block "ivy.loot" "regular")
-              (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "regular"))
-              (.sendMessage player "Loot type set."))
-            
-            (when (= lore "large")
-              (block/save-block block "ivy.loot" "large")
-              (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "large"))
-              (.sendMessage player "Loot type set."))
-            
-            (when (= lore "murca")
-              (block/save-block block "ivy.loot" "murca")
-              (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "murca"))
-              (.sendMessage player "Loot type set."))))))))
 
 (defn find-mob-level [^Entity entity]
   (cond (.hasMetadata entity "NPC") 50
@@ -136,7 +102,7 @@
             (= biome Biome/PLAINS) (spawn-creature (rand-range 8 15) entity biome)
             
             :else (do
-                    (log/warn "Request for biome %s%s%s fell through." ChatColor/RED biome ChatColor/RESET)
+                    (u/log @fawkes (format "Request for biome %s%s%s fell through." ChatColor/RED biome ChatColor/RESET))
                     (spawn-creature 1 entity biome))))))))
 
 (defn handle-event [f e]
@@ -147,10 +113,9 @@
 
 (defn start [plugin]
   (reset! fawkes plugin)
-  
-  (.info (.getLogger @fawkes) "Loading events.")
+
+  (u/log @fawkes "Loading events...")
  
-  (u/register-event plugin "org.bukkit.event.entity.EntityDeathEvent" #'on-entity-death)
-  (u/register-event plugin "org.bukkit.event.entity.EntityDamageByEntityEvent" #'on-entity-damage)
-  (u/register-event plugin "org.bukkit.event.entity.CreatureSpawnEvent" #'on-entity-spawn)
-  (u/register-event plugin "org.bukkit.event.player.PlayerInteractEvent" #'on-player-interact))
+  (event/register-event plugin "org.bukkit.event.entity.EntityDeathEvent" #'on-entity-death)
+  (event/register-event plugin "org.bukkit.event.entity.EntityDamageByEntityEvent" #'on-entity-damage)
+  (event/register-event plugin "org.bukkit.event.entity.CreatureSpawnEvent" #'on-entity-spawn))

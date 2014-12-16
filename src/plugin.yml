@@ -3,16 +3,15 @@ main: ivy.fawkes.Main
 version: 0.0.9
 depend: ["WorldGuard", "WorldEdit", "BetonQuest","Votifier"]
 commands:
+  fkx:
+    description: 'Play with classes.'
+    usage: '/fkx'
+    permissions: fawkes.fkx
   fkey:
     description: 'Give a player a crate key.'
     usage: '/fkey type player amount'
     permissions: fawkes.fkey
-  frange:
-    description: 'Set the level range of a WorldEdit zone.'
-    usage: '/frange <min> <max>'
-    permissions: fawkes.fks
   fks:
     description: 'Testing a clojure command.'
     usage: '/fks reloot'
     permission: fawkes.fks
-    

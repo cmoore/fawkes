@@ -4,11 +4,14 @@
 
 (ns ivy.fawkes.core
   (:import [pl.betoncraft.betonquest BetonQuest])
-  
+
   (:require [ivy.fawkes.events :as events]
             [ivy.fawkes.commands :as commands]
             [ivy.fawkes.block :as block]
             [ivy.fawkes.ext.votifier :as votifier]
+
+            [ivy.fawkes.bukkit.event :as event]
+            [ivy.fawkes.bukkit.command :as cmd]
 
             [ivy.fawkes.ext.beton.resetxp]
             [ivy.fawkes.ext.beton.bronze]
@@ -22,7 +25,7 @@
   (commands/start plugin)
   (block/start plugin)
   (votifier/start plugin)
-  
+
   (.saveDefaultConfig plugin)
 
   (.registerEvents (BetonQuest/getInstance) "ivy.resetxp" ivy.fawkes.ext.beton.ResetXP)
@@ -30,3 +33,4 @@
   (.registerEvents (BetonQuest/getInstance) "ivy.bronzereward" ivy.fawkes.ext.beton.BronzeReward))
 
 (defn -onDisable [this])
+
