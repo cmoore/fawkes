@@ -15,9 +15,21 @@
             [ivy.fawkes.loot :as loot]
 
             [cljminecraft.commands :as cmd]
-            [cljminecraft.logging :as log]))
+            [cljminecraft.logging :as log]
+
+            [clojure.tools.nrepl.server :as nrepl]))
 
 (defonce ^:dynamic fawkes (atom nil))
+(defonce ^:dynamic nrepl (atom nil))
+
+(defn start-nrepl []
+  (when (not @nrepl)
+    (reset! nrepl (nrepl/start-server :port 7888))))
+
+(defn stop-nrepl []
+  (when @nrepl
+    (nrepl/stop-server @nrepl)
+    (reset! nrepl nil)))
 
 (defn make-key [name lore amount]
   (let [new-key (ItemStack. Material/TRIPWIRE_HOOK (u/parse-int amount))
@@ -45,6 +57,14 @@
 (defn handle-fks [sender subcommand]
   (when (.hasPermission sender "fawkes.fks")
 
+    (when (= subcommand "repl")
+      (if @nrepl
+        (do (log/info "Stopping repl.")
+            (stop-nrepl))
+        (do (log/info "Starting repl.")
+            (start-nrepl)))
+      true)
+    
     (when (= subcommand "prune")
       (bl/prune-chests (.getWorld sender)))
     

@@ -13,7 +13,7 @@
 
             [ivy.fawkes.bukkit.event :as event]
             [ivy.fawkes.bukkit.command :as cmd]
-
+            
             [ivy.fawkes.ext.beton.resetxp]
             [ivy.fawkes.ext.beton.bronze]
             [ivy.fawkes.ext.beton.testevent])
@@ -21,13 +21,14 @@
   (:gen-class :name ivy.fawkes.Main
               :extends org.bukkit.plugin.java.JavaPlugin))
 
+
 (defn -onEnable [plugin]
   (events/start plugin)
   (commands/start plugin)
   (block/start plugin)
   (votifier/start plugin)
   (loot/start plugin)
-  
+
   (.saveDefaultConfig plugin)
 
   (.registerEvents (BetonQuest/getInstance) "ivy.resetxp" ivy.fawkes.ext.beton.ResetXP)
@@ -35,3 +36,4 @@
   (.registerEvents (BetonQuest/getInstance) "ivy.bronzereward" ivy.fawkes.ext.beton.BronzeReward))
 
 (defn -onDisable [this])
+
