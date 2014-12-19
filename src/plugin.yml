@@ -1,5 +1,5 @@
 name: fawkes
-main: ivy.fawkes.Main
+main: ivy.fawkes.loader.ClojurePlugin
 version: 0.0.9
 depend: ["WorldGuard", "WorldEdit", "BetonQuest","Votifier"]
 commands:

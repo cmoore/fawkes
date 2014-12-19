@@ -9,10 +9,10 @@
             [monger.collection :as mc])
   
   (:import [org.bukkit.block Chest Biome]
-           [org.bukkit.entity Entity EntityType Projectile Player Monster]
-           [org.bukkit Material Bukkit ChatColor]
+           [org.bukkit.entity Entity EntityType Projectile Player Monster Arrow]
+           [org.bukkit Effect Material Bukkit ChatColor]
            [org.bukkit.event EventPriority]
-           [org.bukkit.event.player PlayerInteractEvent PlayerRespawnEvent]
+           [org.bukkit.event.player PlayerInteractEvent PlayerRespawnEvent PlayerTeleportEvent]
            [org.bukkit.event.block Action]
            [org.bukkit.event.world ChunkLoadEvent]
            [org.bukkit.event.entity EntityDamageByEntityEvent EntityDamageEvent CreatureSpawnEvent EntityDeathEvent]
@@ -77,7 +77,7 @@
 ;;       (.setLevel player (u/parse-int dead-level)))))
 
 (defn find-mob-level [^Entity entity]
-  (cond (.hasMetadata entity "NPC") 50
+  (cond (instance? Arrow entity) 5
         (instance? Projectile entity) (when (instance? Player (.getShooter entity))
                                         (find-mob-level (.getShooter entity)))
         (instance? Monster entity) (let [level (.getMetadata entity "ivy.level")]
@@ -176,6 +176,13 @@
       (if (:msg response)
         (.sendMessage e response)))))
 
+(defn on-player-teleport [event]
+  (let [cause (.getCause event)
+        player (.getPlayer event)]
+    (when (.equals cause org.bukkit.event.player.PlayerTeleportEvent$TeleportCause/COMMAND)
+      (.playEffect player (.getLocation player) Effect/MOBSPAWNER_FLAMES nil)
+      (u/info "%s teleported using a command." (.getName player)))))
+
 (defn start [plugin]
   (reset! fawkes plugin)
   (reset! mongo (mg/connect))
@@ -186,4 +193,5 @@
   ;(event/register-event plugin "org.bukkit.event.player.PlayerRespawnEvent" #'on-player-respawn)
   (event/register-event plugin "org.bukkit.event.entity.EntityDeathEvent" #'on-entity-death)
   (event/register-event plugin "org.bukkit.event.entity.EntityDamageByEntityEvent" #'on-entity-damage)
+  (event/register-event plugin "org.bukkit.event.player.PlayerTeleportEvent" #'on-player-teleport)
   (event/register-event plugin "org.bukkit.event.entity.CreatureSpawnEvent" #'on-entity-spawn))

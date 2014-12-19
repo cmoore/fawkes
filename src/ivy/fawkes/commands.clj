@@ -17,14 +17,15 @@
             [cljminecraft.commands :as cmd]
             [cljminecraft.logging :as log]
 
-            [clojure.tools.nrepl.server :as nrepl]))
+            [clojure.tools.nrepl.server :as nrepl]
+            [cider.nrepl :refer (cider-nrepl-handler)]))
 
 (defonce ^:dynamic fawkes (atom nil))
 (defonce ^:dynamic nrepl (atom nil))
 
 (defn start-nrepl []
   (when (not @nrepl)
-    (reset! nrepl (nrepl/start-server :port 7888))))
+    (reset! nrepl (nrepl/start-server :port 7888 :handler cider-nrepl-handler))))
 
 (defn stop-nrepl []
   (when @nrepl
@@ -57,6 +58,10 @@
 (defn handle-fks [sender subcommand]
   (when (.hasPermission sender "fawkes.fks")
 
+    (when (= subcommand "reloot")
+      (bl/reloot-chests)
+      (.sendMessage sender "Done!"))
+    
     (when (= subcommand "repl")
       (if @nrepl
         (do (log/info "Stopping repl.")
@@ -67,19 +72,7 @@
     
     (when (= subcommand "prune")
       (bl/prune-chests (.getWorld sender)))
-    
-    (when (= subcommand "reloot")
-      (let [chests (bl/get-chests (.getWorld sender))]
-        (doall (map (fn [chest]
-                      (let [chest (cast Chest chest)
-                            inventory (.getBlockInventory chest)]
-                        (.clear inventory)
-                        (.info "Loading a chest...")
-                        (dotimes [x (u/rand-range 3 5)]
-                          (let [item (loot/make-item "hydo" (loot/get-random-loot "bronze"))]
-                            (.addItem inventory item)))))
-                    chests))))
-    
+        
     (when (= subcommand "scan")
       (bl/confirm-blocks sender (.getWorld sender))
       true)

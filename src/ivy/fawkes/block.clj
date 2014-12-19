@@ -1,14 +1,17 @@
 ;; -*- Mode: Clojure; eval: (hs-hide-all) -*-
 
 (ns ivy.fawkes.block
+  
   (:refer-clojure :exclude [update])
   
   (:require [ivy.fawkes.util :as util]
+            [ivy.fawkes.loot :as loot]
             [monger.core :as mg]
             [monger.collection :as mc]
             [cljminecraft.logging :as log])
   
-  (:import [org.bukkit World Material]
+  (:import [org.bukkit World Material Bukkit]
+           [org.bukkit.inventory ItemStack]
            [org.bukkit.block Block]))
 
 (defonce ^:dynamic fawkes (atom nil))
@@ -18,9 +21,7 @@
 (defn block-for-record [world record]
   (let [block_x (get record :block_x)
         block_y (get record :block_y)
-        block_z (get record :block_z)
-        metaname (get record :metaname)
-        metavalue (get record :metavalue)]
+        block_z (get record :block_z)]
     (.getBlockAt world block_x block_y block_z)))
 
 (defn chest-records [world]
@@ -32,7 +33,7 @@
 (defn confirm-blocks [player world]
   (let [records (chest-records world)
         blocks (doall (map (fn [rc]
-                             (let [b (block-for-record rc)]
+                             (let [b (block-for-record world rc)]
                                (when (.equals (.getType b) Material/CHEST)
                                  b)))
                            records))]
@@ -61,6 +62,7 @@
    (map (fn [record]
           (block-for-record world record))
         (chest-records world))))
+
 
 (defn find-block [^Block block]
   (let [location (.getLocation block)
@@ -92,6 +94,19 @@
                               :world world
                               :metaname metaname
                               :metavalue metavalue})))
+
+(defn reloot-chests []
+  (let [world (first (.getWorlds (Bukkit/getServer)))]
+    (let [chests (get-chests world)]
+      (doall (map (fn [chest]
+                    (let [chest (.getState chest)
+                          inventory (.getBlockInventory  chest)]
+                      (.clear inventory)
+                      (dotimes [x (util/rand-range 3 5)]
+                        (let [item (loot/make-item "hydo" (loot/get-random-loot "bronze"))]
+                          (.addItem inventory (doto (make-array ItemStack 1)
+                                                (aset 0 item)))))))
+                  chests)))))
 
 (defn start [instance]
   (reset! fawkes instance)
