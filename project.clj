@@ -23,7 +23,8 @@
                                      'pst)]
                  (alter-var-root orig (constantly (deref new))))]
   
-  :repositories [["me" "http://192.168.0.210/~cmoore/repository/"]
+  :repositories [["me" {:url "http://192.168.0.210/~cmoore/repository/"
+                        :checksum :ignore}]
                  ["sonna" "https://oss.sonatype.org/content/repositories/snapshots"]
                  ["citizens" "http://repo.citizensnpcs.co/"]]
   
