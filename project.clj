@@ -12,7 +12,9 @@
                  [com.sk89q/worldguard "6.0.0-SNAPSHOT"]
                  [com.earth2me/essentials "2.x-SNAPSHOT"]
                  [com.vexsoftware/votifier "1.1"]
+                 [cljminecraft/cljminecraft "1.8-R0.1-SNAPSHOT"]
 
+                 [com.novemberain/monger "2.0.0"]
                  [clj-stacktrace "0.2.7"]]
 
   :injections [(let [orig (ns-resolve (doto 'clojure.stacktrace require)

@@ -3,8 +3,12 @@
 (ns ivy.fawkes.util
   (:import [org.bukkit Bukkit World Material]
            [org.bukkit.event EventPriority]
+           [org.bukkit ChatColor]
            [org.bukkit.entity EntityType Projectile Entity Player]
            [org.bukkit.inventory ItemStack]))
+
+(defn rand-range [low high]
+  (+ (rand-int (- (+ 1 high) low)) low))
 
 (defn parse-int [s]
   (Integer. (re-find #"\d+" s)))
@@ -17,8 +21,12 @@
   (let [fawkes (.getPlugin (Bukkit/getPluginManager) "Fawkes")]
     (.info (.getLogger fawkes) message)))
 
-(defn log [fawkes message]
-  (.info (.getLogger fawkes) message))
+(defn logsend [message]
+  (if-let [sender (Bukkit/getConsoleSender)]
+    (.sendMessage sender message)))
+
+(defmacro info [fmt & args]
+  `(logsend (format ~(str ChatColor/GREEN (.getName *ns*) ChatColor/RESET ":" ChatColor/BLUE (:line (meta &form)) ChatColor/RESET " - " fmt) ~@args)))
 
 (defn find-mob-level [^Entity entity]
   (when (.hasMetaData entity "NPC")

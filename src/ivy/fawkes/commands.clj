@@ -11,7 +11,11 @@
            [org.bukkit.inventory ItemStack])
  
   (:require [ivy.fawkes.util :as u]
-            [ivy.fawkes.block :as bl]))
+            [ivy.fawkes.block :as bl]
+            [ivy.fawkes.loot :as loot]
+
+            [cljminecraft.commands :as cmd]
+            [cljminecraft.logging :as log]))
 
 (defonce ^:dynamic fawkes (atom nil))
 
@@ -23,13 +27,41 @@
     (.setItemMeta new-key key-meta)
     new-key))
 
+(defn handle-fkey [sender type name amount]
+  (let [new-key (cond (= type "bronze")  (make-key "Bronze Key of Lootey Loots" "Bronze Key" amount)
+                      (= type "silver")  (make-key "Silver Key of Pretty Good Loots" "Silver Key" amount)
+                      (= type "gold")    (make-key "Gold Key of Sweet Loots" "Gold Key" amount)
+                      (= type "godtier") (make-key "God Tier Loot Key" "God Tier Key" amount))]
+    
+    (let [the-player (first (filter (fn [player]
+                                      (.equals name (.getName player)))
+                                    (.getPlayers (.getWorld sender))))]
+      (if the-player
+        (do
+          (u/add-to-inventory the-player new-key)
+          (.sendMessage sender "Done."))
+        (.sendMessage sender "I can't find that player.")))))
+
 (defn handle-fks [sender subcommand]
   (when (.hasPermission sender "fawkes.fks")
 
-    (when (= subcommand "test")
-      (doall (map (fn [block]
-                    (u/log fawkes "Found one."))
-                  (bl/find-all-blocks (.getWorld sender) Material/REDSTONE_ORE)))
+    (when (= subcommand "prune")
+      (bl/prune-chests (.getWorld sender)))
+    
+    (when (= subcommand "reloot")
+      (let [chests (bl/get-chests (.getWorld sender))]
+        (doall (map (fn [chest]
+                      (let [chest (cast Chest chest)
+                            inventory (.getBlockInventory chest)]
+                        (.clear inventory)
+                        (.info "Loading a chest...")
+                        (dotimes [x (u/rand-range 3 5)]
+                          (let [item (loot/make-item "hydo" (loot/get-random-loot "bronze"))]
+                            (.addItem inventory item)))))
+                    chests))))
+    
+    (when (= subcommand "scan")
+      (bl/confirm-blocks sender (.getWorld sender))
       true)
     
     (when (= subcommand "sticks")
@@ -67,46 +99,10 @@
                                 (aset 0 regular-stick)
                                 (aset 1 high-stick)
                                 (aset 2 murca-stick)
-                                (aset 3 view-stick)))))))
-  false)
-
-(defn handle-fkey [sender type player amount]
-  (let [new-key (cond (= type "bronze")  (make-key "Bronze Key of Lootey Loots" "Bronze Key" amount)
-                      (= type "silver")  (make-key "Silver Key of Pretty Good Loots" "Silver Key" amount)
-                      (= type "gold")    (make-key "Gold Key of Sweet Loots" "Gold Key" amount)
-                      (= type "godtier") (make-key "God Tier Loot Key" "God Tier Key" amount))]
-    
-    (let [the-player (first (filter (fn [player]
-                                      (.equals name (.getName player)))
-                                    (.getPlayers (.getWorld sender))))]
-      (if the-player
-        (do
-          (u/add-to-inventory the-player new-key)
-          (.sendMessage sender "Done."))
-        (.sendMessage sender "I can't find that player.")))))
+                                (aset 3 view-stick))))))))
 
 (defn start [instance]
   (reset! fawkes instance)
-
-  (doto (.getCommand instance "fks")
-    (.setExecutor (proxy [CommandExecutor] []
-                    (onCommand [sender command label args]
-                      (handle-fks sender (first args))))))
   
-  (doto (.getCommand instance "fkey")
-    (.setExecutor (proxy [CommandExecutor] []
-                    (onCommand [sender command label args]
-                      (let [type (nth args 0)
-                            player (nth args 1)
-                            amount (nth args 2)]
-                        (handle-fkey sender type player amount))))))
-
-  (doto (.getCommand instance "fkx")
-    (.setExecutor (proxy [CommandExecutor] []
-                    (onCommand [sender command label args]
-                      (.info (Bukkit/getLogger) (format "fkx called with cmd: %s alias: %s args: %s" command alias args))
-                      true))))
-  
-  ;  (cmd/register-command instance "fkey" #'handle-fkey :string :string :string)
-  ; (cmd/register-command instance "fks" #'handle-fks :string)
-  )
+  (cmd/register-command instance "fkey" #'handle-fkey :string :string :string)
+  (cmd/register-command instance "fks" #'handle-fks :string))
