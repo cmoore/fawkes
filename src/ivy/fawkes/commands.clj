@@ -88,7 +88,10 @@
             murca-meta (.getItemMeta murca-stick)
 
             view-stick (ItemStack. Material/STICK 1)
-            view-meta (.getItemMeta view-stick)]
+            view-meta (.getItemMeta view-stick)
+            
+            mailbox-stick (ItemStack. Material/STICK 1)
+            mailbox-meta (.getItemMeta mailbox-stick)]
         
         (.setLore regular-meta ["regular"])
         (.setDisplayName regular-meta "Stick of Loots")
@@ -105,14 +108,20 @@
         (.setLore view-meta ["view"])
         (.setDisplayName view-meta "Stick of viewing.")
         (.setItemMeta view-stick view-meta)
+
+        (.setLore mailbox-meta ["mailbox"])
+        (.setDisplayName mailbox-meta "Mailboxer")
+        (.setItemMeta mailbox-stick mailbox-meta)
+
         
         (let [inventory (.getInventory sender)]
                                         ; variable length arguments wtf omg.
-          (.addItem inventory (doto (make-array ItemStack 4)
+          (.addItem inventory (doto (make-array ItemStack 5)
                                 (aset 0 regular-stick)
                                 (aset 1 high-stick)
                                 (aset 2 murca-stick)
-                                (aset 3 view-stick))))))))
+                                (aset 3 view-stick)
+                                (aset 4 mailbox-stick))))))))
 
 (defn start [instance]
   (reset! fawkes instance)

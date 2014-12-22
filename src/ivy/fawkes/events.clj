@@ -53,7 +53,11 @@
             (when (= lore "murca")
               (block/save-block block "ivy.loot" "murca")
               (.setMetadata block "ivy.loot" (new FixedMetadataValue @fawkes "murca"))
-              (.sendMessage player "Loot type set."))))))))
+              (.sendMessage player "Loot type set."))
+
+            (when (= lore "mailbox")
+              (.setMetadata block "ivy.mailbox" (new FixedMetadataValue @fawkes "mail"))
+              (.sendMessage player "Marked as mailbox."))))))))
 
 (defn on-chunk-load [event]
   (let [chunk (.getChunk event)]
