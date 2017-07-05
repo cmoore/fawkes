@@ -6,7 +6,7 @@
 
                  [org.clojure/tools.nrepl "0.2.5"]
                  [com.novemberain/monger "2.0.0"]
-                 [org.bukkit/bukkit "1.8-R0.1-SNAPSHOT"]
+                 [org.bukkit/bukkit "1.10.2"]
 
                  [org.clojure/tools.nrepl "0.2.7-SNAPSHOT"]
                  [cider/cider-nrepl "0.8.1"]

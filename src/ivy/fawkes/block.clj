@@ -7,12 +7,11 @@
   (:require [ivy.fawkes.util :as util]
             [ivy.fawkes.loot :as loot]
             [monger.core :as mg]
-            [monger.collection :as mc]
-            [cljminecraft.logging :as log])
+            [monger.collection :as mc])
   
   (:import [org.bukkit World Material Bukkit]
            [org.bukkit.inventory ItemStack]
-           [org.bukkit.block Block]))
+           [org.bukkit.block Block Chest]))
 
 (defonce ^:dynamic fawkes (atom nil))
 (defonce ^:dynamic mongo (atom nil))
@@ -96,18 +95,27 @@
                               :metavalue metavalue})))
 
 (defn reloot-chests []
-  (let [world (first (.getWorlds (Bukkit/getServer)))]
-    (let [chests (get-chests world)]
-      (doall (map (fn [chest]
-                    (let [chest (.getState chest)
-                          inventory (.getBlockInventory  chest)]
-                      (.clear inventory)
-                      (dotimes [x (util/rand-range 3 5)]
-                        (let [item (loot/make-item "hydo" (loot/get-random-loot "bronze"))]
-                          (.addItem inventory (doto (make-array ItemStack 1)
-                                                (aset 0 item)))))))
-                  chests)))))
+  (letfn [(get-inventory [^Chest b]
+            (.getBlockInventory b))]
+    (let [world (first (.getWorlds (Bukkit/getServer)))]
+      (prune-chests world)
+      (let [chests (get-chests world)]
+        (doall (map (fn [chest]
+                      (let [chest (.getState chest)
+                            inventory (get-inventory chest)]
+                        (.clear inventory)
+                        (dotimes [x (util/rand-range 3 5)]
+                          (let [item (loot/make-item "hydo" (loot/get-random-loot "bronze"))]
+                            (.addItem inventory (doto (make-array ItemStack 1)
+                                                  (aset 0 item)))))))
+                    chests))))))
 
 (defn start [instance]
   (reset! fawkes instance)
   (reset! mongo (mg/connect)))
+
+
+;; (let [chests (get-chests (first (.getWorlds (Bukkit/getServer))))]
+;;   (map (fn [c]
+;;          (.getState c))
+;;        chests))

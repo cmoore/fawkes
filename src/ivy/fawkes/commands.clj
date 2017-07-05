@@ -115,7 +115,7 @@
 
         
         (let [inventory (.getInventory sender)]
-                                        ; variable length arguments wtf omg.
+          ;; variable length arguments wtf omg.
           (.addItem inventory (doto (make-array ItemStack 5)
                                 (aset 0 regular-stick)
                                 (aset 1 high-stick)
@@ -128,3 +128,5 @@
   
   (cmd/register-command instance "fkey" #'handle-fkey :string :string :string)
   (cmd/register-command instance "fks" #'handle-fks :string))
+
+
